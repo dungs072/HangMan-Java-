@@ -3,20 +3,43 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 public class GamePanel extends JPanel implements Runnable {
     // SCREEN SETTINGS
     final private int screenWidth = 900;
     final private int screenHeight = 650;
 
+    private BufferedImage backgroundImage;
+    private ImageIcon tempImage;
     private Thread gameThread;
 
     private final int FPS = 60;
     public GamePanel(){
+        getBackgroundImageFromSource();
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
+    
+
+        
+    }
+    private void getBackgroundImageFromSource()
+    {
+        try
+        {
+            backgroundImage = ImageIO.read(getClass().getResourceAsStream("/Assets/Background.png"));
+        }catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        tempImage = new ImageIcon("/Assets/Alphas/A.png");
+        
     }
 
     public void startGameThread()
@@ -34,7 +57,6 @@ public class GamePanel extends JPanel implements Runnable {
             
             update();
             repaint();
-            System.out.println("Hehe");
             try {
                 double remainingTime = nextDrawTime-System.nanoTime();
                 remainingTime = remainingTime/1000000;
@@ -58,8 +80,10 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
 
-        g2.setColor(Color.white);
-        g2.fillRect(100,100,50,50);
+        if(backgroundImage!=null)
+        {
+            g2.drawImage(backgroundImage,0,0,screenWidth,screenHeight,null);
+        }
         g2.dispose();//save memory
     }
 
