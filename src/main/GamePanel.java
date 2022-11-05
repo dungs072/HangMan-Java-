@@ -7,25 +7,28 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+
+import ui.GButton;
+
 public class GamePanel extends JPanel implements Runnable {
     // SCREEN SETTINGS
-    final private int screenWidth = 900;
-    final private int screenHeight = 650;
-
+    private final int screenWidth = 900;
+    private final int screenHeight = 650;
+    private final int FPS = 60;
+    private final int ALPHA_BUTTON_SIZE = 26;
     private BufferedImage backgroundImage;
-    private ImageIcon tempImage;
     private Thread gameThread;
 
-    private final int FPS = 60;
+    private ImageManager imageManager;
+
+    private GButton[] alphaButtons = new GButton[ALPHA_BUTTON_SIZE];
+    
     public GamePanel(){
         getBackgroundImageFromSource();
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
-    
-
         
     }
     private void getBackgroundImageFromSource()
@@ -37,9 +40,7 @@ public class GamePanel extends JPanel implements Runnable {
         {
             e.printStackTrace();
         }
-
-        tempImage = new ImageIcon("/Assets/Alphas/A.png");
-        
+ 
     }
 
     public void startGameThread()
@@ -47,8 +48,15 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread = new Thread(this);
         gameThread.start();
     }
+    
+    private void start()
+    {
+        imageManager = new ImageManager();
+        loadAlphaButton();
+    }
     @Override
     public void run() {
+        start();
         double drawInterval = 1000000000/FPS;
         double nextDrawTime = System.nanoTime()+drawInterval;
 
@@ -66,7 +74,6 @@ public class GamePanel extends JPanel implements Runnable {
                 Thread.sleep((long) remainingTime);
                 nextDrawTime +=drawInterval;
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -84,7 +91,39 @@ public class GamePanel extends JPanel implements Runnable {
         {
             g2.drawImage(backgroundImage,0,0,screenWidth,screenHeight,null);
         }
+        drawAlphaButton(g2);
         g2.dispose();//save memory
     }
-
+    private void drawAlphaButton(Graphics2D g2)
+    {
+        for(var button:alphaButtons)
+        {
+            button.paint(g2);
+        }
+    }
+    private void loadAlphaButton()
+    {
+        int startPointX = 100;
+        int startPointY = 400;
+        int offsetX = 75;
+        int offsetY = 75;
+        int row = 0;
+        int col = 0;
+        for(int i =0;i<ALPHA_BUTTON_SIZE;i++)
+        {
+            if(i==10)
+            {
+                col = 0;
+                row++;
+            }
+            if(i==20)
+            {
+                col = 2;
+                row++;
+            }
+            alphaButtons[i] = new GButton(startPointX+col*offsetX,startPointY+row*offsetY,
+                            40,40,imageManager.getAlphaImages()[i],"",10,null);
+            col++;
+        }
+    }
 }
