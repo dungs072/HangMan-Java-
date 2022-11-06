@@ -122,7 +122,7 @@ public class GamePanel extends JPanel implements Runnable {
                 row++;
             }
             alphaButtons[i] = new GButton(startPointX+col*offsetX,startPointY+row*offsetY,
-                            40,40,imageManager.getAlphaImages()[i],"",10,null);
+                            45,45,imageManager.getAlphaImages()[i],"",10,null);
             col++;
         }
     }
