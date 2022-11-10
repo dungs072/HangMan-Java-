@@ -8,8 +8,9 @@ import java.awt.event.MouseEvent;
 
 public class GButton extends GText implements Clickable,MouseInputListener {
 
-    private IEvent event;
+    private IEvent event = null;
     private String info = "";
+    private boolean isClickable = true;
     public GButton(int x, int y, int width, int height, BufferedImage displayImage, String title, int fontSize,IEvent event) {
         super(x, y, width, height, displayImage, title, fontSize);
         this.event = event;
@@ -21,20 +22,23 @@ public class GButton extends GText implements Clickable,MouseInputListener {
     public void subscribeEvent(IEvent event)
     {
         this.event = event;
+        
+    }
+    public void setIsClickable(boolean state)
+    {
+        this.isClickable = state;
     }
     @Override
     public boolean contain(int x, int y) {
-        return (x<(currentPosition.getX()+currentSize.getX()) && x>currentPosition.getX()) &&
-                (y<(currentPosition.getY()+currentSize.getY()) && y>currentPosition.getY());
+        return (x<=(currentPosition.getX()+currentSize.getX()) && x>=currentPosition.getX()) &&
+                (y<=(currentPosition.getY()+currentSize.getY()) && y>=currentPosition.getY());
     }
     @Override
     public void mouseClicked(MouseEvent e) {
-        
+        if(!isClickable){return;}
         if(!contain((int)e.getX(), (int)e.getY())){return;}
-        System.out.println("1");
         
-        if(event==null)
-
+        if(event==null){return;}
         event.trigger(info);
         
     }

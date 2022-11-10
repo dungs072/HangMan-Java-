@@ -2,26 +2,12 @@ package main.Entities;
 
 import java.awt.image.BufferedImage;
 
-public abstract class Entity
+public class Entity extends InvisibleEntity
 {
-    protected Vector2 currentPosition;
-    protected Vector2 currentSize;
-
     protected BufferedImage displayImage;
-    
-    public Entity(int x, int y,int width,int height,BufferedImage displayImage)
-    {
-        currentPosition = new Vector2(x, y);
-        currentSize = new Vector2(width,height);
+    public Entity(int x, int y, int width, int height,BufferedImage displayImage) {
+        super(x, y, width, height);
         this.displayImage = displayImage;
-    }
-    public Vector2 getCurrentPosition()
-    {
-        return currentPosition.copy();
-    }
-    public Vector2 getCurrentSize()
-    {
-        return currentSize.copy();
     }
 
 }

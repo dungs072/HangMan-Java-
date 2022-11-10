@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import Animation.Animation;
 import quizzz.QuizzManager;
 import ui.GButton;
 import ui.GText;
@@ -21,6 +22,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private final int screenHeight = 650;
     private final int FPS = 60;
     private final int ALPHA_BUTTON_SIZE = 26;
+    private long timeDeltaTime = 0;
     
     private BufferedImage backgroundImage;
     private Thread gameThread;
@@ -28,6 +30,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private ImageManager imageManager;
     private QuizzManager quizzManager;
     private String answer = "";
+
+    private Animation hangmanAnimation;
 
     private ArrayList<GText> underscores;
     private ArrayList<GText> charAnswers;
@@ -66,8 +70,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         charAnswers = new ArrayList<>();
         imageManager = new ImageManager();
         quizzManager = new QuizzManager();
+        
         createQuestion();
         loadAlphaButton();
+        loadAnimation();
     }
     @Override
     public void run() {
@@ -85,7 +91,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 if(remainingTime < 0){
                     remainingTime = 0;
                 }
-                Thread.sleep((long) remainingTime);
+                timeDeltaTime = (long) timeDeltaTime;
+                Thread.sleep(timeDeltaTime);
                 nextDrawTime +=drawInterval;
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -107,6 +114,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         }
         drawAlphaButton(g2);
         drawUnderscoreText(g2);
+        drawHangmanAnimation(g2);
         g2.dispose();//save memory
     }
     private void drawAlphaButton(Graphics2D g2)
@@ -123,6 +131,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             underscores.get(i).paint(g2);
             charAnswers.get(i).paint(g2);
         }
+    }
+    private void drawHangmanAnimation(Graphics2D g2)
+    {
+        hangmanAnimation.paint(g2, timeDeltaTime);
     }
     private void createQuestion()
     {
@@ -149,7 +161,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         int offsetX = 10;
         int width = 50;
         int height = 50;
-        int offsetY = 50;
+        int offsetY = 5;
         if(quantity%2==0)
         {
             int k =-quantity/2;
@@ -211,14 +223,18 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 row++;
             }
             alphaButtons[i] = new GButton(startPointX+col*offsetX,startPointY+row*offsetY,
-                            45,45,imageManager.getAlphaImages()[i],"",10,null);
+                            45,45,imageManager.getAlphaImages()[i],"",10,this);
             alphaButtons[i].setInfo(Character.toString(i+'A'));
-            alphaButtons[i].subscribeEvent(this);
             addMouseListener(alphaButtons[i]);
             col++;
             
         }
     
+    }
+    private void loadAnimation()
+    {
+        hangmanAnimation = new Animation(150, 0, 550, 325, 
+                                imageManager.getHangmanImages(), false);
     }
     @Override
     public void trigger() {
@@ -227,12 +243,24 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     @Override
     public void trigger(String info) {
+        boolean isRightChar = false;
         for(int i =0;i<answer.length();i++)
         {
-            if(Character.toString(answer.charAt(i))==info)
+
+            if(info.toLowerCase().compareTo(Character.toString(answer.charAt(i)))==0)
             {
-                charAnswers.get(i).setDisplayImage(imageManager.getAlphaImages()[info.charAt(0)]);
+                charAnswers.get(i).setDisplayImage(imageManager.getAlphaImages()[info.charAt(0)-'A']);
+                // alphaButtons[info.charAt(0)-'A'].setIsClickable(false);
+                isRightChar = true;
             }
+        }
+        if(isRightChar)
+        {
+            
+        }
+        else
+        {
+            hangmanAnimation.setNextCurrentIndexImage();
         }
         
     }
