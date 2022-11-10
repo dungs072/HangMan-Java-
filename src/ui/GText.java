@@ -18,10 +18,10 @@ public class GText extends Entity implements MyRunable{
     }
     @Override
     public void update() {
-        handleEventTrigger();
     }
     @Override
     public void paint(Graphics2D g2) {
+        if(this.displayImage==null){return;}
         g2.drawImage(this.displayImage,currentPosition.getX(),currentPosition.getY(),
                                 currentSize.getX(),currentSize.getY(),null);
         if(title.length()==0){return;}
@@ -39,6 +39,10 @@ public class GText extends Entity implements MyRunable{
         y = currentPosition.getY()+currentSize.getY()/2+font.getSize()/6;
         return new Vector2(x, y);
     }
-    protected void handleEventTrigger(){}
+    public void setDisplayImage(BufferedImage displayImage)
+    {
+        this.displayImage = displayImage;
+    }
+    
     
 }

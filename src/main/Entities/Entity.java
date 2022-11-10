@@ -15,5 +15,13 @@ public abstract class Entity
         currentSize = new Vector2(width,height);
         this.displayImage = displayImage;
     }
+    public Vector2 getCurrentPosition()
+    {
+        return currentPosition.copy();
+    }
+    public Vector2 getCurrentSize()
+    {
+        return currentSize.copy();
+    }
 
 }

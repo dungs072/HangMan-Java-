@@ -25,9 +25,12 @@ public class quizz {
         }
         return tempWord;
     }
-    public void reset()
+    public boolean isFullUsedWords()
     {
-        words.clear();
+        return usedWords.size()==words.size();
+    }
+    public void resetUsedWords()
+    {
         usedWords.clear();
     }
 

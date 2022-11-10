@@ -22,4 +22,8 @@ public class Vector2 {
     }
     public int getX(){return x;}
     public int getY(){return y;}
+    public Vector2 copy()
+    {
+        return new Vector2(x, y);
+    }
 }

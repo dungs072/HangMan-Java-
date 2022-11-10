@@ -5,30 +5,42 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import quizzz.QuizzManager;
 import ui.GButton;
+import ui.GText;
+import ui.IEvent;
 
-public class GamePanel extends JPanel implements Runnable {
+public class GamePanel extends JPanel implements Runnable,IEvent {
     // SCREEN SETTINGS
     private final int screenWidth = 900;
     private final int screenHeight = 650;
     private final int FPS = 60;
     private final int ALPHA_BUTTON_SIZE = 26;
+    
     private BufferedImage backgroundImage;
     private Thread gameThread;
 
     private ImageManager imageManager;
+    private QuizzManager quizzManager;
+    private String answer = "";
+
+    private ArrayList<GText> underscores;
+    private ArrayList<GText> charAnswers;
 
     private GButton[] alphaButtons = new GButton[ALPHA_BUTTON_SIZE];
+
     
     public GamePanel(){
         getBackgroundImageFromSource();
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
+    
         
     }
     private void getBackgroundImageFromSource()
@@ -48,10 +60,13 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread = new Thread(this);
         gameThread.start();
     }
-    
     private void start()
     {
+        underscores = new ArrayList<>();
+        charAnswers = new ArrayList<>();
         imageManager = new ImageManager();
+        quizzManager = new QuizzManager();
+        createQuestion();
         loadAlphaButton();
     }
     @Override
@@ -61,8 +76,7 @@ public class GamePanel extends JPanel implements Runnable {
         double nextDrawTime = System.nanoTime()+drawInterval;
 
         while(gameThread!=null)
-        {
-            
+        {           
             update();
             repaint();
             try {
@@ -80,7 +94,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
     public void update()
     {
-
+        
     }
     public void paintComponent(Graphics g)
     {
@@ -92,6 +106,7 @@ public class GamePanel extends JPanel implements Runnable {
             g2.drawImage(backgroundImage,0,0,screenWidth,screenHeight,null);
         }
         drawAlphaButton(g2);
+        drawUnderscoreText(g2);
         g2.dispose();//save memory
     }
     private void drawAlphaButton(Graphics2D g2)
@@ -101,6 +116,80 @@ public class GamePanel extends JPanel implements Runnable {
             button.paint(g2);
         }
     }
+    private void drawUnderscoreText(Graphics2D g2)
+    {
+        for(int i =0;i<underscores.size();i++)
+        {
+            underscores.get(i).paint(g2);
+            charAnswers.get(i).paint(g2);
+        }
+    }
+    private void createQuestion()
+    {
+        String[] texts = quizzManager.getQuestion().split(":");
+        answer = texts[1];
+        System.out.println(answer);
+        if(texts[1].length()>0)
+        {
+            createUnderscoreDisplay(answer.length());
+        }
+        else
+        {
+            //write code there
+        }
+        
+        
+    }
+    private void createUnderscoreDisplay(int quantity)
+    {
+        underscores.clear();
+        charAnswers.clear();
+        int middleOffscreenPosX = screenWidth/2;
+        int posy = 325;
+        int offsetX = 10;
+        int width = 50;
+        int height = 50;
+        int offsetY = 50;
+        if(quantity%2==0)
+        {
+            int k =-quantity/2;
+            for(int i =0;i<quantity;i++)
+            {
+                int posX = middleOffscreenPosX+(k*(offsetX+width));
+                
+                underscores.add(new GText(posX, posy, width, height, imageManager.getRandomUnderscoreImage(), "", 20));
+                charAnswers.add(new GText(posX, posy-offsetY, width, height, null, "", 20));
+                k++;
+            }
+        }
+        else
+        {
+            int k = -quantity/2;
+            for(int i =0;i<quantity;i++)
+            {
+                int temp = k>0?1:-1;
+                int notWidth = k==1?0:width;
+                int posX = middleOffscreenPosX+(k*(offsetX+notWidth)+temp*width/2);
+                if(k>1)
+                {
+                    posX = middleOffscreenPosX+((k-1)*(width)+(k)*offsetX+temp*width/2);
+                }
+                if(k==0)
+                {
+                    posX = middleOffscreenPosX-width/2;
+                    
+                }
+               
+                underscores.add(new GText(posX, posy, width, height, imageManager.getRandomUnderscoreImage(), "", 20));
+                charAnswers.add(new GText(posX, posy-offsetY, width, height, null, "", 20));
+                k++;
+            
+            }
+        }
+        
+        
+    }
+
     private void loadAlphaButton()
     {
         int startPointX = 100;
@@ -123,7 +212,28 @@ public class GamePanel extends JPanel implements Runnable {
             }
             alphaButtons[i] = new GButton(startPointX+col*offsetX,startPointY+row*offsetY,
                             45,45,imageManager.getAlphaImages()[i],"",10,null);
+            alphaButtons[i].setInfo(Character.toString(i+'A'));
+            alphaButtons[i].subscribeEvent(this);
+            addMouseListener(alphaButtons[i]);
             col++;
+            
         }
+    
+    }
+    @Override
+    public void trigger() {
+        // TODO Auto-generated method stub
+        
+    }
+    @Override
+    public void trigger(String info) {
+        for(int i =0;i<answer.length();i++)
+        {
+            if(Character.toString(answer.charAt(i))==info)
+            {
+                charAnswers.get(i).setDisplayImage(imageManager.getAlphaImages()[info.charAt(0)]);
+            }
+        }
+        
     }
 }

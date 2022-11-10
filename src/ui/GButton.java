@@ -4,24 +4,23 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.event.MouseInputListener;
 
-import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.MouseInfo;
 
 public class GButton extends GText implements Clickable,MouseInputListener {
 
     private IEvent event;
-    private boolean isMousePressed = false;
+    private String info = "";
     public GButton(int x, int y, int width, int height, BufferedImage displayImage, String title, int fontSize,IEvent event) {
         super(x, y, width, height, displayImage, title, fontSize);
         this.event = event;
     }
-    protected void handleEventTrigger()
+    public void setInfo(String info)
     {
-        Point mousePosition = MouseInfo.getPointerInfo().getLocation();
-        if(!contain((int)mousePosition.getX(), (int)mousePosition.getY())){return;}
-        if(!isMousePressed){return;}
-        event.run();
+        this.info = info;
+    }
+    public void subscribeEvent(IEvent event)
+    {
+        this.event = event;
     }
     @Override
     public boolean contain(int x, int y) {
@@ -30,17 +29,23 @@ public class GButton extends GText implements Clickable,MouseInputListener {
     }
     @Override
     public void mouseClicked(MouseEvent e) {
-        // TODO Auto-generated method stub
+        
+        if(!contain((int)e.getX(), (int)e.getY())){return;}
+        System.out.println("1");
+        
+        if(event==null)
+
+        event.trigger(info);
         
     }
     @Override
     public void mousePressed(MouseEvent e) {
-        isMousePressed = true;
+      
         
     }
     @Override
     public void mouseReleased(MouseEvent e) {
-        isMousePressed = false;
+
         
     }
     @Override
