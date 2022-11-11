@@ -11,14 +11,22 @@ import java.awt.Graphics2D;
 
 public class GButton extends GText implements MouseListener {
 
+    private static final long TIME_TRANSITION_DISPLAY_IMAGE = 100;
+    private long currentTimeAC = 0;
+    private BufferedImage currentImage;
+    private BufferedImage clickedImageButton;
     private IEvent event = null;
     private String info = "";
     private boolean isClickable = true;
     private Rectangle rect;
     private boolean isPressed = false;
-    public GButton(int x, int y, int width, int height, BufferedImage displayImage, String title, int fontSize,IEvent event) {
+    private boolean isPressedUI = false;
+    
+    public GButton(int x, int y, int width, int height, BufferedImage displayImage,BufferedImage clickedImageButton, String title, int fontSize,IEvent event) {
         super(x, y, width, height, displayImage, title, fontSize);
         this.event = event;
+        this.clickedImageButton = clickedImageButton;
+        this.currentImage = displayImage;
         rect = getBounds();
     }
     private Rectangle getBounds()
@@ -38,23 +46,32 @@ public class GButton extends GText implements MouseListener {
     {
         this.isClickable = state;
     }
-    public void update(int x, int y)
+    public void update(long timeDeltaTime,int x, int y)
     {
+        if(isPressedUI || clickedImageButton!=null)
+        {
+            currentTimeAC+=timeDeltaTime;
+            if(currentTimeAC>=TIME_TRANSITION_DISPLAY_IMAGE)
+            {
+                currentTimeAC = 0;
+                isPressedUI = false;
+                currentImage = displayImage;
+            }
+        }
         if(!isPressed){return;}
+        
         if(!isClickable){return;}
-      
+        
         if(!rect.contains(x,y)){return;}
         
         if(event==null){return;}
-        System.out.println(info);
         event.trigger(info);
     }
 
     public void paint(Graphics2D g2) {
-        if(this.displayImage==null){return;}
-        g2.drawImage(this.displayImage,currentPosition.getX(),currentPosition.getY(),
+        if(this.currentImage==null){return;}
+        g2.drawImage(this.currentImage,currentPosition.getX(),currentPosition.getY(),
                                 currentSize.getX(),currentSize.getY(),null);
-        g2.drawRect(currentPosition.getX(), currentPosition.getY(), currentSize.getX(), currentSize.getY());
     }
    
     
@@ -67,6 +84,9 @@ public class GButton extends GText implements MouseListener {
         if(e.getButton()==MouseEvent.BUTTON1)
         {
             isPressed = true;
+            isPressedUI = true;
+            if(clickedImageButton==null){return;}
+            currentImage = clickedImageButton;
         }
     }
     @Override

@@ -11,8 +11,11 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import Animation.Animation;
+import main.Entities.Vector2;
 import quizzz.QuizzManager;
 import ui.GButton;
+import ui.GMenu;
 import ui.GText;
 import ui.IEvent;
 
@@ -22,7 +25,9 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private final int screenHeight = 650;
     private final int FPS = 60;
     private final int ALPHA_BUTTON_SIZE = 26;
+    private final long TIME_DRAW_ANIM_PER_IMAGE = 50;
     private long timeDeltaTime = 0;
+
     
     private BufferedImage backgroundImage;
     private Thread gameThread;
@@ -33,8 +38,14 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
 
     private GText hangManImageDisplay;
 
+
     private ArrayList<GText> underscores;
     private ArrayList<GText> charAnswers;
+
+    private ArrayList<Animation> circleAnims;
+    private ArrayList<Animation> xAnims;
+
+    private GMenu popUpWindow;
 
     private GButton[] alphaButtons = new GButton[ALPHA_BUTTON_SIZE];
 
@@ -69,12 +80,15 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     {
         underscores = new ArrayList<>();
         charAnswers = new ArrayList<>();
+        circleAnims = new ArrayList<>();
+        xAnims = new ArrayList<>();
         imageManager = new ImageManager();
         quizzManager = new QuizzManager();
         
         createQuestion();
         loadAlphaButton();
         loadHangMan();
+        loadMenus();
     }
     @Override
     public void run() {
@@ -92,7 +106,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 if(remainingTime < 0){
                     remainingTime = 0;
                 }
-                timeDeltaTime = (long) timeDeltaTime;
+                timeDeltaTime = (long) remainingTime;
                 Thread.sleep(timeDeltaTime);
                 nextDrawTime +=drawInterval;
             } catch (InterruptedException e) {
@@ -106,7 +120,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         if(mousePoint==null){return;}
         for(int i =0;i<ALPHA_BUTTON_SIZE;i++)
         {
-            alphaButtons[i].update((int)mousePoint.getX(), (int)mousePoint.getY());
+            alphaButtons[i].update(timeDeltaTime,(int)mousePoint.getX(), (int)mousePoint.getY());
         }
     }
     public void update()
@@ -125,6 +139,9 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         drawAlphaButton(g2);
         drawUnderscoreText(g2);
         drawHangmanAnimation(g2);
+        drawCircleAnimations(g2);
+        drawXAnimations(g2);
+        drawMenus(g2);
         g2.dispose();//save memory
     }
     private void drawAlphaButton(Graphics2D g2)
@@ -145,6 +162,28 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private void drawHangmanAnimation(Graphics2D g2)
     {
         hangManImageDisplay.paint(g2);
+    }
+    private void drawCircleAnimations(Graphics2D g2)
+    {
+        for(int i =0;i<circleAnims.size();i++)
+        {
+            circleAnims.get(i).paint(g2, timeDeltaTime);
+        }
+    }
+    private void drawXAnimations(Graphics2D g2)
+    {
+        for(int i =0;i<xAnims.size();i++)
+        {
+            xAnims.get(i).paint(g2, timeDeltaTime);
+        }
+    }
+    private void drawMenus(Graphics2D g2)
+    {
+        if(popUpWindow!=null)
+        {
+            popUpWindow.paint(g2);
+        }
+        
     }
     private void createQuestion()
     {
@@ -233,7 +272,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 row++;
             }
             alphaButtons[i] = new GButton(startPointX+col*offsetX,startPointY+row*offsetY,
-                            45,45,imageManager.getAlphaImages()[i],"",10,this);
+                            45,45,imageManager.getAlphaImages()[i],null,"",10,this);
             alphaButtons[i].setInfo(Character.toString(i+'A'));
             addMouseListener(alphaButtons[i]);
             col++;
@@ -247,6 +286,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         hangManImageDisplay = new GText(150, 0, 550, 325, 
                                 imageManager.getHangmanImages()[0],"",20);
     }
+    private void loadMenus()
+    {
+        popUpWindow = new GMenu(10, 100, 900,300, imageManager.getPopupImage());
+    }
     @Override
     public void trigger() {
         // TODO Auto-generated method stub
@@ -255,7 +298,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     @Override
     public void trigger(String info) {
         boolean isRightChar = false;
-        alphaButtons[info.charAt(0)-'A'].setIsClickable(false);
+        GButton currentButton = alphaButtons[info.charAt(0)-'A'];
+        currentButton.setIsClickable(false);
         for(int i =0;i<answer.length();i++)
         {
             if(info.toLowerCase().compareTo(Character.toString(answer.charAt(i)))==0)
@@ -266,22 +310,32 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         }
         if(isRightChar)
         {
-            handleRightChar();
+            handleRightChar(currentButton);
         }
         else
         {
-           handleWrongChar();
+           handleWrongChar(currentButton);
         }
         
     }
-    private void handleRightChar()
+    private void handleRightChar(GButton currentButtonClicked)
     {
-
+        Vector2 pos = currentButtonClicked.getCurrentPosition();
+        Vector2 size = currentButtonClicked.getCurrentSize();
+        circleAnims.add(new Animation(pos.getX(), pos.getY(), size.getX(), size.getY(),
+                    imageManager.getCircleImages(),false,TIME_DRAW_ANIM_PER_IMAGE));
     }
-    private void handleWrongChar()
+    private void handleWrongChar(GButton currentButtonClicked)
     {
+        Vector2 pos = currentButtonClicked.getCurrentPosition();
+        Vector2 size = currentButtonClicked.getCurrentSize();
+        xAnims.add(new Animation(pos.getX(), pos.getY(), size.getX(), size.getY(), 
+                    imageManager.getXImages(),false,TIME_DRAW_ANIM_PER_IMAGE));
+
+        
         currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
         hangManImageDisplay.setDisplayImage(imageManager.getHangmanImages()[currentIndexHangMan]);
+        
         
     }
 }

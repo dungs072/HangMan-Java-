@@ -5,34 +5,35 @@ import main.Entities.InvisibleEntity;
 public class Animation extends InvisibleEntity{
 
     private BufferedImage[] images;
-    private long timeToDrawPerFrame = 0;
+    private long timeDrawPerImage = 0;
     private long currentTimeAc = 0;
     private int currentIndex = 0;
     private boolean isLoop = true;
-    public Animation(int x, int y, int width, int height,BufferedImage[] images,boolean isLoop) {
+    public Animation(int x, int y, int width, int height,BufferedImage[] images,boolean isLoop,long timedrawPerImage) {
         super(x, y, width, height);
         this.images = images;
         this.isLoop = isLoop;
+        this.timeDrawPerImage = timedrawPerImage;
     }
     public void paint(Graphics2D g2,long timeDeltaTime)
     {
-        if(isLoop)
+        drawImagePerTimeSpecify(g2);
+        currentTimeAc+=timeDeltaTime;
+        if(currentTimeAc>=timeDrawPerImage)
         {
-            currentTimeAc+=timeDeltaTime;
-            if(currentTimeAc>=timeToDrawPerFrame)
+            currentTimeAc = 0;
+            if(isLoop)
             {
-                currentTimeAc = 0;
-                drawImagePerTimeSpecify(g2);
-                currentIndex = (currentIndex+1)%images.length;
+                
+                setNextCurrentIndexImage();
             }
+            else
+            {
+                if((currentIndex+1)%images.length==0){return;}
+                setNextCurrentIndexImage();
+            }
+               
         }
-        else
-        {
-            
-            drawImagePerTimeSpecify(g2);
-            
-        }
-       
     }
     private void drawImagePerTimeSpecify(Graphics2D g2)
     {
@@ -43,7 +44,7 @@ public class Animation extends InvisibleEntity{
 
     public void setTimeToDrawPerFrame(long time)
     {
-        this.timeToDrawPerFrame = time;
+        this.timeDrawPerImage = time;
     }
     public void setNextCurrentIndexImage()
     {
