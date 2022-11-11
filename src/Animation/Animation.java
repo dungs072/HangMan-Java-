@@ -28,7 +28,9 @@ public class Animation extends InvisibleEntity{
         }
         else
         {
+            
             drawImagePerTimeSpecify(g2);
+            
         }
        
     }

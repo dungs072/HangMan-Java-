@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-import Animation.Animation;
 import quizzz.QuizzManager;
 import ui.GButton;
 import ui.GText;
@@ -31,13 +31,14 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private QuizzManager quizzManager;
     private String answer = "";
 
-    private Animation hangmanAnimation;
+    private GText hangManImageDisplay;
 
     private ArrayList<GText> underscores;
     private ArrayList<GText> charAnswers;
 
     private GButton[] alphaButtons = new GButton[ALPHA_BUTTON_SIZE];
 
+    private int currentIndexHangMan = 0;
     
     public GamePanel(){
         getBackgroundImageFromSource();
@@ -73,7 +74,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         
         createQuestion();
         loadAlphaButton();
-        loadAnimation();
+        loadHangMan();
     }
     @Override
     public void run() {
@@ -99,9 +100,18 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             }
         }
     }
+    private void handleEvent()//pain way
+    {
+        Point mousePoint = getMousePosition();
+        if(mousePoint==null){return;}
+        for(int i =0;i<ALPHA_BUTTON_SIZE;i++)
+        {
+            alphaButtons[i].update((int)mousePoint.getX(), (int)mousePoint.getY());
+        }
+    }
     public void update()
     {
-        
+        handleEvent();
     }
     public void paintComponent(Graphics g)
     {
@@ -134,7 +144,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void drawHangmanAnimation(Graphics2D g2)
     {
-        hangmanAnimation.paint(g2, timeDeltaTime);
+        hangManImageDisplay.paint(g2);
     }
     private void createQuestion()
     {
@@ -231,10 +241,11 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         }
     
     }
-    private void loadAnimation()
+    private void loadHangMan()
     {
-        hangmanAnimation = new Animation(150, 0, 550, 325, 
-                                imageManager.getHangmanImages(), false);
+
+        hangManImageDisplay = new GText(150, 0, 550, 325, 
+                                imageManager.getHangmanImages()[0],"",20);
     }
     @Override
     public void trigger() {
@@ -244,24 +255,33 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     @Override
     public void trigger(String info) {
         boolean isRightChar = false;
+        alphaButtons[info.charAt(0)-'A'].setIsClickable(false);
         for(int i =0;i<answer.length();i++)
         {
-
             if(info.toLowerCase().compareTo(Character.toString(answer.charAt(i)))==0)
             {
                 charAnswers.get(i).setDisplayImage(imageManager.getAlphaImages()[info.charAt(0)-'A']);
-                // alphaButtons[info.charAt(0)-'A'].setIsClickable(false);
                 isRightChar = true;
             }
         }
         if(isRightChar)
         {
-            
+            handleRightChar();
         }
         else
         {
-            hangmanAnimation.setNextCurrentIndexImage();
+           handleWrongChar();
         }
+        
+    }
+    private void handleRightChar()
+    {
+
+    }
+    private void handleWrongChar()
+    {
+        currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
+        hangManImageDisplay.setDisplayImage(imageManager.getHangmanImages()[currentIndexHangMan]);
         
     }
 }

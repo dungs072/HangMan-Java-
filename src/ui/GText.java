@@ -44,5 +44,4 @@ public class GText extends Entity implements MyRunable{
         this.displayImage = displayImage;
     }
     
-    
 }

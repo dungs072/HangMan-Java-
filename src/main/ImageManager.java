@@ -69,4 +69,5 @@ public class ImageManager {
         return underscoreImages[randIndex];
     }
     public BufferedImage[] getHangmanImages(){return hangmanImages;}
+    public int getLengthHangmanImages(){return HANGMAN_IMAGES_SIZE;}
 }
