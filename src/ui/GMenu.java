@@ -6,24 +6,28 @@ import java.util.ArrayList;
 
 import main.Entities.Entity;
 import main.Entities.MyRunable;
+import main.Entities.Vector2;
 
 public class GMenu extends Entity implements MyRunable {
 
     private ArrayList<GButton> buttons;
     private ArrayList<GText> texts;
+    private boolean canDisplay = true;
     public GMenu(int x, int y, int width, int height, BufferedImage displayImage) {
         super(x, y, width, height, displayImage);
         buttons = new ArrayList<>();
         texts = new ArrayList<>();
     }
-    public GButton createButton(int x, int y, int width, int height, BufferedImage displayImage, BufferedImage clickedButtonImage,IEvent event)
+    public GButton createButton(int x, int y, int width, int height, BufferedImage displayImage, BufferedImage clickedImageButton,IEvent event)
     {
-        buttons.add(new GButton(x,y,width,height,displayImage,clickedButtonImage,"",1,event));
+        Vector2 pos = currentPosition;
+        buttons.add(new GButton(pos.getX()+x,pos.getY()+y,width,height,displayImage,clickedImageButton,"",1,event));
         return buttons.get(buttons.size()-1);
     }
-    public GText createText(int x, int y, int width, int height,BufferedImage BufferedImage,BufferedImage displayImage, String title, int fontSize)
+    public GText createText(int x, int y, int width, int height,BufferedImage displayImage, String title, int fontSize)
     {
-        texts.add(new GText(x, y, width, height, displayImage, title, fontSize));
+        Vector2 pos = currentPosition;
+        texts.add(new GText(pos.getX()+x, pos.getY()+y, width, height, displayImage, title, fontSize));
         return texts.get(texts.size()-1);
     }
     @Override
@@ -33,6 +37,7 @@ public class GMenu extends Entity implements MyRunable {
     }
     @Override
     public void paint(Graphics2D g2) {
+        if(!canDisplay){return;}
         g2.drawImage(displayImage, currentPosition.getX(), currentPosition.getY(), 
                             currentSize.getX(),currentSize.getY(),null);
         for(var button:buttons)
@@ -45,6 +50,10 @@ public class GMenu extends Entity implements MyRunable {
         }
 
         
+    }
+    public void setCanDisplay(boolean state)
+    {
+        canDisplay = state;
     }
 
     

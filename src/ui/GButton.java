@@ -8,7 +8,7 @@ import java.awt.event.*;
 import java.awt.event.MouseEvent;
 import java.awt.Graphics2D;
 
-
+// should addlistener of every instance of button you created
 public class GButton extends GText implements MouseListener {
 
     private static final long TIME_TRANSITION_DISPLAY_IMAGE = 100;
@@ -48,7 +48,8 @@ public class GButton extends GText implements MouseListener {
     }
     public void update(long timeDeltaTime,int x, int y)
     {
-        if(isPressedUI || clickedImageButton!=null)
+
+        if(isPressedUI && clickedImageButton!=null)
         {
             currentTimeAC+=timeDeltaTime;
             if(currentTimeAC>=TIME_TRANSITION_DISPLAY_IMAGE)
@@ -56,6 +57,10 @@ public class GButton extends GText implements MouseListener {
                 currentTimeAC = 0;
                 isPressedUI = false;
                 currentImage = displayImage;
+            }
+            else
+            {
+                return;
             }
         }
         if(!isPressed){return;}
@@ -83,10 +88,11 @@ public class GButton extends GText implements MouseListener {
     public void mousePressed(MouseEvent e) {
         if(e.getButton()==MouseEvent.BUTTON1)
         {
+        
             isPressed = true;
-            isPressedUI = true;
-            if(clickedImageButton==null){return;}
+            if(this.clickedImageButton==null){return;}
             currentImage = clickedImageButton;
+            isPressedUI = true;
         }
     }
     @Override

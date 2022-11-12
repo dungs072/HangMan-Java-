@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+
+import ui.ImageReference;
 public class ImageManager {
     private final int ALPHA_IMAGES_SIZE = 26;
     private final int UNDERSCORE_IMAGES_SIZE = 3;
@@ -16,7 +18,9 @@ public class ImageManager {
     private BufferedImage[] circleImages = new BufferedImage[CIRCLE_IMAGES_SIZE];
     private BufferedImage[] xImages = new BufferedImage[X_IMAGES_SIZE];
 
-    private BufferedImage popUpImage;
+    private ImageReference popUpImageRefer;
+    private ImageReference replayButtonClickedRefer;
+    private ImageReference replayButtonRefer;
     private Random random = new Random();
     public ImageManager()
     {
@@ -25,7 +29,14 @@ public class ImageManager {
         loadHangManImages();
         loadCircleImages();
         loadXImages();
-        loadRawImage(popUpImage,"/Assets/PopUps/Pop_up.png");
+
+        popUpImageRefer = new ImageReference();
+        loadRawImage(popUpImageRefer,"/Assets/PopUps/Pop_up.png");
+        replayButtonRefer = new ImageReference();
+        loadRawImage(replayButtonRefer, "/Assets/Buttons/PopUp/replay.png");
+        replayButtonClickedRefer = new ImageReference();
+        loadRawImage(replayButtonClickedRefer, "/Assets/Buttons/PopUp/replay_clicked.png");
+
     }
     private void loadAlphaImages()
     {
@@ -73,11 +84,11 @@ public class ImageManager {
             e.printStackTrace();
         }
     }
-    private void loadRawImage(BufferedImage image, String path)
+    private void loadRawImage(ImageReference imageRefer, String path)
     {
         try
         {
-            image = ImageIO.read(getClass().getResourceAsStream(path));
+            imageRefer.setImage(ImageIO.read(getClass().getResourceAsStream(path)));
 
         }catch(IOException e)
         {
@@ -94,6 +105,8 @@ public class ImageManager {
     public BufferedImage[] getHangmanImages(){return hangmanImages;}
     public BufferedImage[] getCircleImages(){return circleImages;}
     public BufferedImage[] getXImages(){return xImages;}
-    public BufferedImage getPopupImage(){return popUpImage;}
+    public BufferedImage getPopupImage(){return popUpImageRefer.getImage();}
+    public BufferedImage getReplayButtonImage(){return replayButtonRefer.getImage();}
+    public BufferedImage getReplayClickedButtonImage(){return replayButtonClickedRefer.getImage();}
     public int getLengthHangmanImages(){return HANGMAN_IMAGES_SIZE;}
 }

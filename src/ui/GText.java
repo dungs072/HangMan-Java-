@@ -21,7 +21,7 @@ public class GText extends Entity implements MyRunable{
     }
     @Override
     public void paint(Graphics2D g2) {
-        if(this.displayImage==null){return;}
+        //if(this.displayImage==null){return;}
         g2.drawImage(this.displayImage,currentPosition.getX(),currentPosition.getY(),
                                 currentSize.getX(),currentSize.getY(),null);
         if(title.length()==0){return;}
@@ -42,6 +42,10 @@ public class GText extends Entity implements MyRunable{
     public void setDisplayImage(BufferedImage displayImage)
     {
         this.displayImage = displayImage;
+    }
+    public void setTitle(String title)
+    {
+        this.title = title;
     }
     
 }

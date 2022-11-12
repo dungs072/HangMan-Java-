@@ -45,11 +45,14 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private ArrayList<Animation> circleAnims;
     private ArrayList<Animation> xAnims;
 
-    private GMenu popUpWindow;
+    private GMenu popUpOverWindow;
+    private GButton replayButton;
 
     private GButton[] alphaButtons = new GButton[ALPHA_BUTTON_SIZE];
 
     private int currentIndexHangMan = 0;
+
+    private boolean isGameOver = false;
     
     public GamePanel(){
         getBackgroundImageFromSource();
@@ -118,10 +121,11 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     {
         Point mousePoint = getMousePosition();
         if(mousePoint==null){return;}
-        for(int i =0;i<ALPHA_BUTTON_SIZE;i++)
-        {
-            alphaButtons[i].update(timeDeltaTime,(int)mousePoint.getX(), (int)mousePoint.getY());
-        }
+        // for(int i =0;i<ALPHA_BUTTON_SIZE;i++)
+        // {
+        //     alphaButtons[i].update(timeDeltaTime,(int)mousePoint.getX(), (int)mousePoint.getY());
+        // }
+        replayButton.update(timeDeltaTime, (int)mousePoint.getX(), (int)mousePoint.getY());
     }
     public void update()
     {
@@ -136,7 +140,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         {
             g2.drawImage(backgroundImage,0,0,screenWidth,screenHeight,null);
         }
-        drawAlphaButton(g2);
+        if(!isGameOver)
+        {
+            drawAlphaButton(g2);
+        }
         drawUnderscoreText(g2);
         drawHangmanAnimation(g2);
         drawCircleAnimations(g2);
@@ -146,10 +153,11 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void drawAlphaButton(Graphics2D g2)
     {
-        for(var button:alphaButtons)
-        {
-            button.paint(g2);
-        }
+        // for(var button:alphaButtons)
+        // {
+        //     if(button==null){continue;}
+        //     button.paint(g2);
+        // }
     }
     private void drawUnderscoreText(Graphics2D g2)
     {
@@ -161,6 +169,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void drawHangmanAnimation(Graphics2D g2)
     {
+        if(hangManImageDisplay==null){return;}
         hangManImageDisplay.paint(g2);
     }
     private void drawCircleAnimations(Graphics2D g2)
@@ -179,9 +188,9 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void drawMenus(Graphics2D g2)
     {
-        if(popUpWindow!=null)
+        if(popUpOverWindow!=null)
         {
-            popUpWindow.paint(g2);
+            popUpOverWindow.paint(g2);
         }
         
     }
@@ -288,8 +297,15 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void loadMenus()
     {
-        popUpWindow = new GMenu(10, 100, 900,300, imageManager.getPopupImage());
+        popUpOverWindow = new GMenu(0, 325, 900,325, imageManager.getPopupImage());
+        //popUpOverWindow.setCanDisplay(false);
+        popUpOverWindow.createText(325, 20, 200, 50, null,"OOPS... YOU FAILED!",25);
+        popUpOverWindow.createText(325, 75, 200, 50,null,"Your score: ",25);
+        replayButton = popUpOverWindow.createButton(390, 150, 100,100,imageManager.getReplayButtonImage(),
+                                                    imageManager.getReplayClickedButtonImage(),null);
+        addMouseListener(replayButton);
     }
+    
     @Override
     public void trigger() {
         // TODO Auto-generated method stub
@@ -335,7 +351,16 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         
         currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
         hangManImageDisplay.setDisplayImage(imageManager.getHangmanImages()[currentIndexHangMan]);
+        if(currentIndexHangMan==imageManager.getLengthHangmanImages()-2)
+        {
+            handleGameOver();
+        }
         
-        
+    }
+    private void handleGameOver()
+    {
+        isGameOver = true;
+        popUpOverWindow.setCanDisplay(true);
+        currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
     }
 }
