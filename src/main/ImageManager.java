@@ -21,6 +21,11 @@ public class ImageManager {
     private ImageReference popUpImageRefer;
     private ImageReference replayButtonClickedRefer;
     private ImageReference replayButtonRefer;
+    private ImageReference nextButtonClickedRefer;
+    private ImageReference nextButtonRefer;
+    private ImageReference newRecordRefer;
+    private ImageReference chestRefer;
+    private ImageReference coinRefer;
     private Random random = new Random();
     public ImageManager()
     {
@@ -37,6 +42,16 @@ public class ImageManager {
         replayButtonClickedRefer = new ImageReference();
         loadRawImage(replayButtonClickedRefer, "/Assets/Buttons/PopUp/replay_clicked.png");
 
+        nextButtonRefer = new ImageReference();
+        loadRawImage(nextButtonRefer, "/Assets/Buttons/PopUp/next.png");
+        nextButtonClickedRefer = new ImageReference();
+        loadRawImage(nextButtonClickedRefer, "/Assets/Buttons/PopUp/next_clicked.png");
+        newRecordRefer = new ImageReference();
+        loadRawImage(newRecordRefer, "/Assets/Items/MyRecord.png");
+        chestRefer = new ImageReference();
+        loadRawImage(chestRefer, "/Assets/Items/Chest.png");
+        coinRefer = new ImageReference();
+        loadRawImage(coinRefer, "/Assets/Items/Coin.png");
     }
     private void loadAlphaImages()
     {
@@ -108,5 +123,10 @@ public class ImageManager {
     public BufferedImage getPopupImage(){return popUpImageRefer.getImage();}
     public BufferedImage getReplayButtonImage(){return replayButtonRefer.getImage();}
     public BufferedImage getReplayClickedButtonImage(){return replayButtonClickedRefer.getImage();}
+    public BufferedImage getNextButtonImage(){return nextButtonRefer.getImage();}
+    public BufferedImage getNextClickedButtonImage(){return nextButtonClickedRefer.getImage();}
+    public BufferedImage getChestImage(){return chestRefer.getImage();}
+    public BufferedImage getNewRecordImage(){return newRecordRefer.getImage();}
+    public BufferedImage getCoinImage(){return coinRefer.getImage();}
     public int getLengthHangmanImages(){return HANGMAN_IMAGES_SIZE;}
 }

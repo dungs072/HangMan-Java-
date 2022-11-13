@@ -13,6 +13,7 @@ public class GButton extends GText implements MouseListener {
 
     private static final long TIME_TRANSITION_DISPLAY_IMAGE = 100;
     private long currentTimeAC = 0;
+    private long currentTimeReleaseAC = 0;
     private BufferedImage currentImage;
     private BufferedImage clickedImageButton;
     private IEvent event = null;
@@ -21,6 +22,7 @@ public class GButton extends GText implements MouseListener {
     private Rectangle rect;
     private boolean isPressed = false;
     private boolean isPressedUI = false;
+    private boolean isReleaseUI = false;
     
     public GButton(int x, int y, int width, int height, BufferedImage displayImage,BufferedImage clickedImageButton, String title, int fontSize,IEvent event) {
         super(x, y, width, height, displayImage, title, fontSize);
@@ -57,14 +59,26 @@ public class GButton extends GText implements MouseListener {
                 currentTimeAC = 0;
                 isPressedUI = false;
                 currentImage = displayImage;
-                RunEvent(x, y,false);
+                isReleaseUI = true;
+                
             }
             else
             {
                 return;
             }
         }
-        else
+        if(isReleaseUI)
+        {
+            currentTimeReleaseAC+=timeDeltaTime;
+            if(currentTimeReleaseAC>=TIME_TRANSITION_DISPLAY_IMAGE)
+            {
+                isReleaseUI = false;
+                currentTimeReleaseAC = 0;
+                RunEvent(x, y,false);
+            }
+        }
+        
+        if(clickedImageButton==null)
         {
             RunEvent(x, y,true);
         }

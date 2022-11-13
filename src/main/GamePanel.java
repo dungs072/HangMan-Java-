@@ -37,7 +37,9 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private String answer = "";
 
     private GText hangManImageDisplay;
-
+    private GText answerDisplay;
+    private GText coinDisplay;
+    private GText coinAmount;
 
     private ArrayList<GText> underscores;
     private ArrayList<GText> charAnswers;
@@ -48,11 +50,17 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private GMenu popUpOverWindow;
     private GButton replayButton;
 
+    private GMenu popUpWinWindow;
+    private GButton nextQuesButton;
+
     private GButton[] alphaButtons = new GButton[ALPHA_BUTTON_SIZE];
 
     private int currentIndexHangMan = 0;
+    private int countNumberCharRight = 0;
 
     private boolean isGameOver = false;
+    private boolean isWin = false;
+    private boolean isDisplayAnswer = false;
     
     public GamePanel(){
         getBackgroundImageFromSource();
@@ -88,6 +96,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         imageManager = new ImageManager();
         quizzManager = new QuizzManager();
         
+        createAnswerDisplay();
+        createCoinDisplay();
         createQuestion();
         loadAlphaButton();
         loadHangMan();
@@ -121,16 +131,22 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     {
         Point mousePoint = getMousePosition();
         if(mousePoint==null){return;}
-        if(!isGameOver)
+       
+       
+        if(isGameOver)
+        {
+            replayButton.update(timeDeltaTime, (int)mousePoint.getX(), (int)mousePoint.getY());
+        }
+        else if(isWin)
+        {
+            nextQuesButton.update(timeDeltaTime,(int)mousePoint.getX(),(int)mousePoint.getY());
+        }
+        else
         {
             for(int i =0;i<ALPHA_BUTTON_SIZE;i++)
             {
                 alphaButtons[i].update(timeDeltaTime,(int)mousePoint.getX(), (int)mousePoint.getY());
             }
-        }
-        else
-        {
-            replayButton.update(timeDeltaTime, (int)mousePoint.getX(), (int)mousePoint.getY());
         }
         
     }
@@ -151,12 +167,24 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         {
             drawAlphaButton(g2);
         }
+        drawCoinDisplay(g2);
+        drawAnswerDisplay(g2);
         drawUnderscoreText(g2);
         drawHangmanAnimation(g2);
         drawCircleAnimations(g2);
         drawXAnimations(g2);
         drawMenus(g2);
         g2.dispose();//save memory
+    }
+    private void drawCoinDisplay(Graphics2D g2)
+    {
+        coinDisplay.paint(g2);
+        coinAmount.paint(g2);
+    }
+    private void drawAnswerDisplay(Graphics2D g2)
+    {
+        if(!isDisplayAnswer){return;}
+        answerDisplay.paint(g2);
     }
     private void drawAlphaButton(Graphics2D g2)
     {
@@ -195,11 +223,33 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void drawMenus(Graphics2D g2)
     {
+        drawOverWindow(g2);
+        drawWinWindow(g2);
+        
+    }
+    private void drawOverWindow(Graphics2D g2) {
         if(popUpOverWindow!=null)
         {
             popUpOverWindow.paint(g2);
         }
-        
+    }
+    private void drawWinWindow(Graphics2D g2)
+    {
+        if(popUpWinWindow!=null)
+        {
+            popUpWinWindow.paint(g2);
+        }
+    }
+    private void createAnswerDisplay()
+    {
+        answerDisplay = new GText(450, 200, 200, 50,null,
+                                "ANSWER: ", 20);
+    }
+    private void createCoinDisplay()
+    {
+        coinDisplay = new GText(740, 20, 50, 50, 
+                imageManager.getCoinImage(), "", 1);
+        coinAmount = new GText(780, 25, 50, 50, null,"9999", 20);
     }
     private void createQuestion()
     {
@@ -304,15 +354,30 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void loadMenus()
     {
+        loadOverPopupWindow();
+        loadWinPopupWindow();
+    }
+    private void loadOverPopupWindow() {
         popUpOverWindow = new GMenu(0, 325, 900,325, imageManager.getPopupImage());
         popUpOverWindow.setCanDisplay(false);
-        //popUpOverWindow.setCanDisplay(false);
         popUpOverWindow.createText(325, 20, 200, 50, null,"OOPS... YOU FAILED!",25);
         popUpOverWindow.createText(325, 75, 200, 50,null,"Your score: ",25);
         replayButton = popUpOverWindow.createButton(390, 150, 100,100,imageManager.getReplayButtonImage(),
                                                     imageManager.getReplayClickedButtonImage(),null);
         bindingEventForReplayButton();
         addMouseListener(replayButton);
+    }
+    private void loadWinPopupWindow()
+    {
+       
+        popUpWinWindow = new GMenu(0, 325, 900,325, imageManager.getPopupImage());
+        popUpWinWindow.setCanDisplay(false);
+        popUpWinWindow.createText(310,20,250,100, imageManager.getNewRecordImage(),"",1);
+        popUpWinWindow.createText(330, 75,200,200,imageManager.getChestImage(),"",1);
+        nextQuesButton = popUpWinWindow.createButton(410,245,50,50,
+                            imageManager.getNextButtonImage(),imageManager.getNextClickedButtonImage(),null);
+        bindingEventForNextButton();
+        addMouseListener(nextQuesButton);
     }
     
     @Override
@@ -328,6 +393,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             {
                 charAnswers.get(i).setDisplayImage(imageManager.getAlphaImages()[info.charAt(0)-'A']);
                 isRightChar = true;
+                countNumberCharRight++;
             }
         }
         if(isRightChar)
@@ -346,6 +412,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         Vector2 size = currentButtonClicked.getCurrentSize();
         circleAnims.add(new Animation(pos.getX(), pos.getY(), size.getX(), size.getY(),
                     imageManager.getCircleImages(),false,TIME_DRAW_ANIM_PER_IMAGE));
+        if(countNumberCharRight==answer.length())
+        {
+            handleGameWin();
+        }
     }
     private void handleWrongChar(GButton currentButtonClicked)
     {
@@ -363,12 +433,30 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         }
         
     }
+    private void handleGameWin()
+    {
+        isWin = true;
+        popUpWinWindow.setCanDisplay(true);
+        changeStateClickableAlphaButtons(false);
+        changeStateDisplayAnswer(true);
+        isDisplayAnswer = true;
+        
+    }
     private void handleGameOver()
     {
         isGameOver = true;
         popUpOverWindow.setCanDisplay(true);
         changeStateClickableAlphaButtons(false);
+        changeStateDisplayAnswer(true);
         currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
+    }
+    private void changeStateDisplayAnswer(boolean state)
+    {
+        isDisplayAnswer = state;
+        if(state)
+        {
+            answerDisplay.setTitle("ANSWER: "+answer.toUpperCase());
+        }
     }
     private void changeStateClickableAlphaButtons(boolean state)
     {
@@ -382,16 +470,36 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         replayButton.subscribeEvent(new EventBinding(){
             @Override
             public void trigger(Object obj) {
-                System.out.println(1);
                 super.trigger(obj);
                 isGameOver = false;
-                changeStateClickableAlphaButtons(true);
+                resetLevel();
                 popUpOverWindow.setCanDisplay(false);
-                createQuestion();
-                circleAnims.clear();
-                xAnims.clear();
             }
         });
+    }
+    private void bindingEventForNextButton()
+    {
+        nextQuesButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+                isWin = false;
+                resetLevel();
+                popUpWinWindow.setCanDisplay(false);
+            }
+        });
+    }
+    private void resetLevel()
+    {
+        countNumberCharRight = 0;
+        changeStateDisplayAnswer(false);
+        changeStateClickableAlphaButtons(true);
+        createQuestion();
+        circleAnims.clear();
+        xAnims.clear();
+        currentIndexHangMan = 0;
+        hangManImageDisplay.setDisplayImage(imageManager.getHangmanImages()[currentIndexHangMan]);
     }
 }
 class EventBinding implements IEvent

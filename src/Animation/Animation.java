@@ -9,6 +9,7 @@ public class Animation extends InvisibleEntity{
     private long currentTimeAc = 0;
     private int currentIndex = 0;
     private boolean isLoop = true;
+    private boolean isCanDraw = true;
     public Animation(int x, int y, int width, int height,BufferedImage[] images,boolean isLoop,long timedrawPerImage) {
         super(x, y, width, height);
         this.images = images;
@@ -17,6 +18,7 @@ public class Animation extends InvisibleEntity{
     }
     public void paint(Graphics2D g2,long timeDeltaTime)
     {
+        if(!isCanDraw){return;}
         drawImagePerTimeSpecify(g2);
         currentTimeAc+=timeDeltaTime;
         if(currentTimeAc>=timeDrawPerImage)
@@ -35,6 +37,10 @@ public class Animation extends InvisibleEntity{
                
         }
     }
+    public void setIsCanDraw(boolean state)
+    {
+        isCanDraw = state;
+    }
     private void drawImagePerTimeSpecify(Graphics2D g2)
     {
         g2.drawImage(images[currentIndex],currentPosition.getX(),currentPosition.getY(),
@@ -49,6 +55,10 @@ public class Animation extends InvisibleEntity{
     public void setNextCurrentIndexImage()
     {
         currentIndex = (currentIndex+1)%images.length;
+    }
+    public void setPosition(int x, int y)
+    {
+        currentPosition.setPos(x, y);
     }
     
    
