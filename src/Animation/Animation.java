@@ -41,6 +41,7 @@ public class Animation extends InvisibleEntity{
     {
         isCanDraw = state;
     }
+    public boolean getIsCanDraw(){return isCanDraw;}
     private void drawImagePerTimeSpecify(Graphics2D g2)
     {
         g2.drawImage(images[currentIndex],currentPosition.getX(),currentPosition.getY(),

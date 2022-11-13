@@ -31,7 +31,7 @@ public class GMenu extends Entity implements MyRunable {
         return texts.get(texts.size()-1);
     }
     @Override
-    public void update() {
+    public void update(long timeDeltaTime) {
         // TODO Auto-generated method stub
         
     }

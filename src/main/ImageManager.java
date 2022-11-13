@@ -12,11 +12,15 @@ public class ImageManager {
     private final int HANGMAN_IMAGES_SIZE = 10;
     private final int CIRCLE_IMAGES_SIZE = 6;
     private final int X_IMAGES_SIZE = 6;
+    private final int COIN_IMAGE_SIZE = 10;
+    private final int HANGMAN_WIN_SIZE = 10;
     private BufferedImage[] alphaImages = new BufferedImage[ALPHA_IMAGES_SIZE];
     private BufferedImage[] underscoreImages = new BufferedImage[UNDERSCORE_IMAGES_SIZE];
     private BufferedImage[] hangmanImages = new BufferedImage[HANGMAN_IMAGES_SIZE];
     private BufferedImage[] circleImages = new BufferedImage[CIRCLE_IMAGES_SIZE];
     private BufferedImage[] xImages = new BufferedImage[X_IMAGES_SIZE];
+    private BufferedImage[] coinImages = new BufferedImage[COIN_IMAGE_SIZE];
+    private BufferedImage[] hangManWinImages = new BufferedImage[HANGMAN_WIN_SIZE];
 
     private ImageReference popUpImageRefer;
     private ImageReference replayButtonClickedRefer;
@@ -26,6 +30,7 @@ public class ImageManager {
     private ImageReference newRecordRefer;
     private ImageReference chestRefer;
     private ImageReference coinRefer;
+    private ImageReference titleRefer;
     private Random random = new Random();
     public ImageManager()
     {
@@ -34,6 +39,8 @@ public class ImageManager {
         loadHangManImages();
         loadCircleImages();
         loadXImages();
+        loadCoinImages();
+        loadHangmanWinImages();
 
         popUpImageRefer = new ImageReference();
         loadRawImage(popUpImageRefer,"/Assets/PopUps/Pop_up.png");
@@ -52,6 +59,8 @@ public class ImageManager {
         loadRawImage(chestRefer, "/Assets/Items/Chest.png");
         coinRefer = new ImageReference();
         loadRawImage(coinRefer, "/Assets/Items/Coin.png");
+        titleRefer = new ImageReference();
+        loadRawImage(titleRefer, "/Assets/ImageText.png");
     }
     private void loadAlphaImages()
     {
@@ -83,6 +92,14 @@ public class ImageManager {
     private void loadXImages()
     {
         loadRawImages(xImages, X_IMAGES_SIZE, "/Assets/Xs/");
+    }
+    private void loadCoinImages()
+    {
+        loadRawImages(coinImages, COIN_IMAGE_SIZE, "/Assets/Items/Coins/Coin");
+    }
+    private void loadHangmanWinImages()
+    {
+        loadRawImages(hangManWinImages, HANGMAN_WIN_SIZE, "/Assets/WinHangmans/00");
     }
     private void loadRawImages(BufferedImage[] images, int size, String forePath)
     {
@@ -120,6 +137,8 @@ public class ImageManager {
     public BufferedImage[] getHangmanImages(){return hangmanImages;}
     public BufferedImage[] getCircleImages(){return circleImages;}
     public BufferedImage[] getXImages(){return xImages;}
+    public BufferedImage[] getCoinImages(){return coinImages;}
+    public BufferedImage[] getHangmanWinImages(){return hangManWinImages;}
     public BufferedImage getPopupImage(){return popUpImageRefer.getImage();}
     public BufferedImage getReplayButtonImage(){return replayButtonRefer.getImage();}
     public BufferedImage getReplayClickedButtonImage(){return replayButtonClickedRefer.getImage();}
@@ -128,5 +147,6 @@ public class ImageManager {
     public BufferedImage getChestImage(){return chestRefer.getImage();}
     public BufferedImage getNewRecordImage(){return newRecordRefer.getImage();}
     public BufferedImage getCoinImage(){return coinRefer.getImage();}
+    public BufferedImage getTitleImage(){return titleRefer.getImage();}
     public int getLengthHangmanImages(){return HANGMAN_IMAGES_SIZE;}
 }

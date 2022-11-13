@@ -12,25 +12,28 @@ public class CoinAnimationManager implements MyRunable {
     private long timeDeltaTime = 0;
     private long timeAC = 0;
     private int currentIndexAnim = 0;
-    private int lengthImageAnim = 0;
     private ArrayList<Animation> coinAnimations;
     private Vector2 destination;
     private Vector2 startPosition;
+    private int speed = 3;
+    private int amountCoinsNeed = 10;
     
     private boolean isDrawCoinMove = false;
-    public CoinAnimationManager()
+    public CoinAnimationManager(int startX, int startY, int endX, int endY,int amount, BufferedImage[] coinImages)
     {
         coinAnimations = new ArrayList<>();
-        destination = new Vector2(0, 0);
-        startPosition = new Vector2(0, 0);
+        this.startPosition = new Vector2(startX, startY);
+        this.destination = new Vector2(endX, endY);
+        createCoins(amount, coinImages);
+        changeStateCanDrawForCoinAnims(false);
     }
-    public void createCoins(int amount,BufferedImage[] coinImages)
+    private void createCoins(int amount,BufferedImage[] coinImages)
     {
-        lengthImageAnim = coinImages.length;
         for(int i =0;i<amount;i++)
         {
             coinAnimations.add(new Animation(startPosition.getX(), startPosition.getY(), 50, 50,
-                                             coinImages, true, 100));
+                                             coinImages, true, 25));
+            
         }
     }
     public void setDestination(int x, int y)
@@ -41,31 +44,67 @@ public class CoinAnimationManager implements MyRunable {
     {
         startPosition.setPos(x, y);
     }
+    public void setAmountCoinNeed(int amount)
+    {
+        amountCoinsNeed = amount<coinAnimations.size()?amount:coinAnimations.size();
+        currentIndexAnim=0;
+        resetPositionForCoinAnimation();
+    }
+    private void resetPositionForCoinAnimation()
+    {
+        for(var anim:coinAnimations)
+        {
+            anim.setPosition(startPosition.getX(), startPosition.getY());
+        }
+    }
     private int calculateNextYPosition(int x)
     {
-        int coff = (startPosition.getY()-destination.getY())/(startPosition.getX()-destination.getX());
-        return coff*x+(destination.getY()-coff*destination.getX());
+        float coff = ((float)startPosition.getY()-(float)destination.getY())/
+                        ((float)startPosition.getX()-(float)destination.getX());
+        return (int)(coff*(float)x+((float)destination.getY()-coff*(float)destination.getX()));
     }
     public void setIsDrawCoinMove(boolean state)
     {
         isDrawCoinMove = state;
     }
-    // def calculate_next_y_point(self,xpoint):
-    //     coff1 = (self.startY-self.desY)/(self.startX-self.desX)
-    //     return int(coff1*xpoint + (self.desY-coff1*self.desX))
     @Override
     public void update(long timeDeltaTime) {
         this.timeDeltaTime = timeDeltaTime;
-        timeAC+=timeDeltaTime;
-        if(timeAC>=timeMovePerCoin)
+        if(currentIndexAnim<amountCoinsNeed)
         {
-            Animation coinAnim = coinAnimations.get(currentIndexAnim);
-            int x = coinAnim.getCurrentPosition().getX()+1;
+            timeAC+=timeDeltaTime;
+            if(timeAC>=timeMovePerCoin)
+            {
+                timeAC = 0;
+                coinAnimations.get(currentIndexAnim).setIsCanDraw(true);
+                currentIndexAnim++;
+            }
+        }
+       
+        for(var coinAnim: coinAnimations)
+        {
+            if(!coinAnim.getIsCanDraw()){continue;}
+            int x = coinAnim.getCurrentPosition().getX()+speed;
+        
             int y = calculateNextYPosition(x);
             coinAnim.setPosition(x, y);
-            currentIndexAnim = (currentIndexAnim+1)%lengthImageAnim;
-
+            if(x>=destination.getX()&&y<=destination.getY())
+            {
+                coinAnim.setIsCanDraw(false);
+            }
         }
+    }
+    private void changeStateCanDrawForCoinAnims(boolean state)
+    {
+        for(var anim: coinAnimations)
+        {
+            anim.setIsCanDraw(state);
+        }
+    }
+    public void switchOffDisplayCoins()
+    {
+        changeStateCanDrawForCoinAnims(false);
+        resetPositionForCoinAnimation();
     }
     @Override
     public void paint(Graphics2D g2) {

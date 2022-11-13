@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import Animation.Animation;
+import Animation.CoinAnimationManager;
 import main.Entities.Vector2;
 import quizzz.QuizzManager;
 import ui.GButton;
@@ -26,6 +27,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private final int FPS = 60;
     private final int ALPHA_BUTTON_SIZE = 26;
     private final long TIME_DRAW_ANIM_PER_IMAGE = 50;
+    private final int DEFAULT_PER_WIN = 10;
+
     private long timeDeltaTime = 0;
 
     
@@ -36,10 +39,15 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private QuizzManager quizzManager;
     private String answer = "";
 
+    private CoinAnimationManager coinAnimationManager;
+    private Animation hangManWinAnimation;
+
+
     private GText hangManImageDisplay;
     private GText answerDisplay;
     private GText coinDisplay;
     private GText coinAmount;
+    private GText titleDisplay;
 
     private ArrayList<GText> underscores;
     private ArrayList<GText> charAnswers;
@@ -57,6 +65,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
 
     private int currentIndexHangMan = 0;
     private int countNumberCharRight = 0;
+    private int countNumberCharFalse = 0;
 
     private boolean isGameOver = false;
     private boolean isWin = false;
@@ -96,6 +105,9 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         imageManager = new ImageManager();
         quizzManager = new QuizzManager();
         
+        createHangmanWinDisplay();
+        createCoinAnimationManager();
+        createTitleDisplay();
         createAnswerDisplay();
         createCoinDisplay();
         createQuestion();
@@ -140,6 +152,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         else if(isWin)
         {
             nextQuesButton.update(timeDeltaTime,(int)mousePoint.getX(),(int)mousePoint.getY());
+            coinAnimationManager.update(timeDeltaTime);
         }
         else
         {
@@ -167,6 +180,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         {
             drawAlphaButton(g2);
         }
+        drawHangmanWinAnimation(g2);
+        drawTitleDisplay(g2);
         drawCoinDisplay(g2);
         drawAnswerDisplay(g2);
         drawUnderscoreText(g2);
@@ -174,7 +189,22 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         drawCircleAnimations(g2);
         drawXAnimations(g2);
         drawMenus(g2);
+        drawCoinAnimationManager(g2);
         g2.dispose();//save memory
+    }
+    private void drawHangmanWinAnimation(Graphics2D g2)
+    {
+        if(!isWin){return;}
+        hangManWinAnimation.paint(g2, timeDeltaTime);
+    }
+    private void drawCoinAnimationManager(Graphics2D g2)
+    {
+        coinAnimationManager.paint(g2);
+    }
+    private void drawTitleDisplay(Graphics2D g2)
+    {
+        if(isGameOver||isWin){return;}
+        titleDisplay.paint(g2);
     }
     private void drawCoinDisplay(Graphics2D g2)
     {
@@ -240,6 +270,22 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             popUpWinWindow.paint(g2);
         }
     }
+   
+    private void createCoinAnimationManager()
+    {
+        coinAnimationManager = new CoinAnimationManager(420,430, 740,20,
+                                                DEFAULT_PER_WIN,imageManager.getCoinImages());
+    }
+    private void createHangmanWinDisplay()
+    {
+        hangManWinAnimation = new Animation(150, -10, 
+                    550, 325, imageManager.getHangmanWinImages(),true,100);
+    }
+    private void createTitleDisplay()
+    {
+        titleDisplay = new GText(345, 305, 200, 50, 
+                                imageManager.getTitleImage(),"Your Title", 25);
+    }
     private void createAnswerDisplay()
     {
         answerDisplay = new GText(450, 200, 200, 50,null,
@@ -258,6 +304,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         System.out.println(answer);
         if(texts[1].length()>0)
         {
+            titleDisplay.setTitle(texts[0].toUpperCase());
             createUnderscoreDisplay(answer.length());
         }
         else
@@ -272,7 +319,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         underscores.clear();
         charAnswers.clear();
         int middleOffscreenPosX = screenWidth/2;
-        int posy = 325;
+        int posy = 365;
         int offsetX = 10;
         int width = 50;
         int height = 50;
@@ -320,7 +367,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private void loadAlphaButton()
     {
         int startPointX = 100;
-        int startPointY = 400;
+        int startPointY = 430;
         int offsetX = 75;
         int offsetY = 75;
         int row = 0;
@@ -349,7 +396,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private void loadHangMan()
     {
 
-        hangManImageDisplay = new GText(150, 0, 550, 325, 
+        hangManImageDisplay = new GText(150, -10, 550, 325, 
                                 imageManager.getHangmanImages()[0],"",20);
     }
     private void loadMenus()
@@ -427,6 +474,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         
         currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
         hangManImageDisplay.setDisplayImage(imageManager.getHangmanImages()[currentIndexHangMan]);
+        countNumberCharFalse++;
         if(currentIndexHangMan==imageManager.getLengthHangmanImages()-2)
         {
             handleGameOver();
@@ -436,9 +484,12 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private void handleGameWin()
     {
         isWin = true;
+        
         popUpWinWindow.setCanDisplay(true);
+        coinAnimationManager.setIsDrawCoinMove(true);
         changeStateClickableAlphaButtons(false);
         changeStateDisplayAnswer(true);
+        coinAnimationManager.setAmountCoinNeed(DEFAULT_PER_WIN-countNumberCharFalse);
         isDisplayAnswer = true;
         
     }
@@ -487,12 +538,14 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 isWin = false;
                 resetLevel();
                 popUpWinWindow.setCanDisplay(false);
+                coinAnimationManager.switchOffDisplayCoins();
             }
         });
     }
     private void resetLevel()
     {
         countNumberCharRight = 0;
+        countNumberCharFalse = 0;
         changeStateDisplayAnswer(false);
         changeStateClickableAlphaButtons(true);
         createQuestion();
