@@ -121,11 +121,18 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     {
         Point mousePoint = getMousePosition();
         if(mousePoint==null){return;}
-        // for(int i =0;i<ALPHA_BUTTON_SIZE;i++)
-        // {
-        //     alphaButtons[i].update(timeDeltaTime,(int)mousePoint.getX(), (int)mousePoint.getY());
-        // }
-        replayButton.update(timeDeltaTime, (int)mousePoint.getX(), (int)mousePoint.getY());
+        if(!isGameOver)
+        {
+            for(int i =0;i<ALPHA_BUTTON_SIZE;i++)
+            {
+                alphaButtons[i].update(timeDeltaTime,(int)mousePoint.getX(), (int)mousePoint.getY());
+            }
+        }
+        else
+        {
+            replayButton.update(timeDeltaTime, (int)mousePoint.getX(), (int)mousePoint.getY());
+        }
+        
     }
     public void update()
     {
@@ -153,11 +160,11 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void drawAlphaButton(Graphics2D g2)
     {
-        // for(var button:alphaButtons)
-        // {
-        //     if(button==null){continue;}
-        //     button.paint(g2);
-        // }
+        for(var button:alphaButtons)
+        {
+            if(button==null){continue;}
+            button.paint(g2);
+        }
     }
     private void drawUnderscoreText(Graphics2D g2)
     {
@@ -282,7 +289,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             }
             alphaButtons[i] = new GButton(startPointX+col*offsetX,startPointY+row*offsetY,
                             45,45,imageManager.getAlphaImages()[i],null,"",10,this);
-            alphaButtons[i].setInfo(Character.toString(i+'A'));
+            alphaButtons[i].setInforObj(Character.toString(i+'A'));
             addMouseListener(alphaButtons[i]);
             col++;
             
@@ -298,21 +305,20 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private void loadMenus()
     {
         popUpOverWindow = new GMenu(0, 325, 900,325, imageManager.getPopupImage());
+        popUpOverWindow.setCanDisplay(false);
         //popUpOverWindow.setCanDisplay(false);
         popUpOverWindow.createText(325, 20, 200, 50, null,"OOPS... YOU FAILED!",25);
         popUpOverWindow.createText(325, 75, 200, 50,null,"Your score: ",25);
         replayButton = popUpOverWindow.createButton(390, 150, 100,100,imageManager.getReplayButtonImage(),
                                                     imageManager.getReplayClickedButtonImage(),null);
+        bindingEventForReplayButton();
         addMouseListener(replayButton);
     }
     
     @Override
-    public void trigger() {
-        // TODO Auto-generated method stub
-        
-    }
-    @Override
-    public void trigger(String info) {
+    public void trigger(Object obj) {
+        if(!(obj instanceof String)){return;}
+        String info = (String)obj;
         boolean isRightChar = false;
         GButton currentButton = alphaButtons[info.charAt(0)-'A'];
         currentButton.setIsClickable(false);
@@ -361,6 +367,39 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     {
         isGameOver = true;
         popUpOverWindow.setCanDisplay(true);
+        changeStateClickableAlphaButtons(false);
         currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
     }
+    private void changeStateClickableAlphaButtons(boolean state)
+    {
+        for(var button: alphaButtons)
+        {
+            button.setIsClickable(state);
+        }
+    }
+    private void bindingEventForReplayButton()
+    {
+        replayButton.subscribeEvent(new EventBinding(){
+            @Override
+            public void trigger(Object obj) {
+                System.out.println(1);
+                super.trigger(obj);
+                isGameOver = false;
+                changeStateClickableAlphaButtons(true);
+                popUpOverWindow.setCanDisplay(false);
+                createQuestion();
+                circleAnims.clear();
+                xAnims.clear();
+            }
+        });
+    }
+}
+class EventBinding implements IEvent
+{
+
+    @Override
+    public void trigger(Object obj) {
+        return;
+    }
+    
 }

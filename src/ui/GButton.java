@@ -16,7 +16,7 @@ public class GButton extends GText implements MouseListener {
     private BufferedImage currentImage;
     private BufferedImage clickedImageButton;
     private IEvent event = null;
-    private String info = "";
+    private Object inforObj = null;
     private boolean isClickable = true;
     private Rectangle rect;
     private boolean isPressed = false;
@@ -33,9 +33,9 @@ public class GButton extends GText implements MouseListener {
     {
         return new Rectangle(currentPosition.getX(),currentPosition.getY(),currentSize.getX(),currentSize.getY());
     }
-    public void setInfo(String info)
+    public void setInforObj(Object inforObj)
     {
-        this.info = info;
+        this.inforObj = inforObj;
     }
     public void subscribeEvent(IEvent event)
     {
@@ -57,21 +57,30 @@ public class GButton extends GText implements MouseListener {
                 currentTimeAC = 0;
                 isPressedUI = false;
                 currentImage = displayImage;
+                RunEvent(x, y,false);
             }
             else
             {
                 return;
             }
         }
-        if(!isPressed){return;}
+        else
+        {
+            RunEvent(x, y,true);
+        }
+        
+    }
+    private void RunEvent(int x, int y,boolean isNeedPress)
+    {
+        if(!isPressed&&isNeedPress){return;}
         
         if(!isClickable){return;}
         
         if(!rect.contains(x,y)){return;}
         
         if(event==null){return;}
-        event.trigger(info);
-    }
+        event.trigger(inforObj);
+    }   
 
     public void paint(Graphics2D g2) {
         if(this.currentImage==null){return;}
@@ -86,6 +95,7 @@ public class GButton extends GText implements MouseListener {
     }
     @Override
     public void mousePressed(MouseEvent e) {
+        if(!rect.contains(e.getX(),e.getY())){return;}
         if(e.getButton()==MouseEvent.BUTTON1)
         {
         

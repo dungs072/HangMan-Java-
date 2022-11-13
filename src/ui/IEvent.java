@@ -1,6 +1,5 @@
 package ui;
 
 public interface IEvent {
-    void trigger();
-    void trigger(String info);
+    void trigger(Object obj);
 }
