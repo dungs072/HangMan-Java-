@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import main.Entities.MyRunable;
 import main.Entities.Vector2;
+import ui.IEvent;
 
 public class CoinAnimationManager implements MyRunable {
     private final long timeMovePerCoin = 200;
@@ -15,10 +16,11 @@ public class CoinAnimationManager implements MyRunable {
     private ArrayList<Animation> coinAnimations;
     private Vector2 destination;
     private Vector2 startPosition;
-    private int speed = 3;
+    private int speed = 4;
     private int amountCoinsNeed = 10;
     
     private boolean isDrawCoinMove = false;
+    private IEvent event;
     public CoinAnimationManager(int startX, int startY, int endX, int endY,int amount, BufferedImage[] coinImages)
     {
         coinAnimations = new ArrayList<>();
@@ -35,6 +37,10 @@ public class CoinAnimationManager implements MyRunable {
                                              coinImages, true, 25));
             
         }
+    }
+    public void subscribeEvent(IEvent event)
+    {
+        this.event = event;
     }
     public void setDestination(int x, int y)
     {
@@ -91,6 +97,10 @@ public class CoinAnimationManager implements MyRunable {
             if(x>=destination.getX()&&y<=destination.getY())
             {
                 coinAnim.setIsCanDraw(false);
+                if(event!=null)
+                {
+                    event.trigger(null);
+                }
             }
         }
     }
@@ -106,6 +116,7 @@ public class CoinAnimationManager implements MyRunable {
         changeStateCanDrawForCoinAnims(false);
         resetPositionForCoinAnimation();
     }
+    public ArrayList<Animation> getCoinAnimations(){return coinAnimations;}
     @Override
     public void paint(Graphics2D g2) {
         if(!isDrawCoinMove){return;}
