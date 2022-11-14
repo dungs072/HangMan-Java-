@@ -21,8 +21,8 @@ public class QuizzManager {
             Scanner myReader = new Scanner(quizzFile);
             while (myReader.hasNextLine()) {
               String line = myReader.nextLine();
+              if(line.isEmpty()){break;}
               String[] texts = line.split(": ");
-              
               String[] answers = texts[1].split(", ");
               quizz tempQuizz = new quizz();
               for(var answer: answers)
@@ -40,15 +40,20 @@ public class QuizzManager {
     }
     public String getQuestion()
     {
-        String tempTitle = "";
-        String tempAnswer = "";
+        String tempTitle = "-1";
+        String tempAnswer = "-1";
         
         while(titles.size()>usedTitles.size())
         {
             int randomIndex = random.nextInt(titles.size());
             tempTitle = titles.get(randomIndex);
-            if(usedTitles.contains(tempTitle)){continue;}
-            usedTitles.add(tempTitle);
+            quizz q = dictionary.get(tempTitle);
+            if(q.isFullUsedWords())
+            {
+              if(usedTitles.contains(tempTitle)){continue;}
+              usedTitles.add(tempTitle);
+              continue;
+            }
             tempAnswer = dictionary.get(tempTitle).getWord();
             break;
         }
@@ -57,5 +62,9 @@ public class QuizzManager {
     public void resetUsedTitle()
     {
         usedTitles.clear();
+        for(var key:titles)
+        {
+            dictionary.get(key).resetUsedWords();
+        }
     }
 }

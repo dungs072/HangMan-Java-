@@ -45,6 +45,9 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private CoinAnimationManager coinAnimationManager;
     private Animation hangManWinAnimation;
 
+    private Animation firstCloud;
+    private Animation secondCloud;
+
     private Player player;
 
     private GText hangManImageDisplay;
@@ -131,6 +134,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         createScoreDisplay();
         createQuestion();
         createSuggestionButton();
+        createCloud();
         loadAlphaButton();
         loadHangMan();
         loadMenus();
@@ -212,9 +216,17 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         drawCircleAnimations(g2);
         drawXAnimations(g2);
         drawMenus(g2);
+        drawClouds(g2);
         drawSuggestionButton(g2);
         drawCoinAnimationManager(g2);
         g2.dispose();//save memory
+    }
+    private void drawClouds(Graphics2D g2)
+    {
+        if(isWin||isGameOver){return;}
+        if(firstCloud==null||secondCloud==null){return;}
+        firstCloud.paint(g2, timeDeltaTime);
+        secondCloud.paint(g2, timeDeltaTime);
     }
     private void drawSuggestionButton(Graphics2D g2)
     {
@@ -232,6 +244,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void drawCoinAnimationManager(Graphics2D g2)
     {
+        if(!isWin){return;}
         if(coinAnimationManager==null){return;}
         coinAnimationManager.paint(g2);
     }
@@ -243,12 +256,14 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void drawScoreDisplay(Graphics2D g2)
     {
+        if(isGameOver){return;}
         if(scoreDisplay==null||scoreAmount==null){return;}
         scoreDisplay.paint(g2);
         scoreAmount.paint(g2);
     }
     private void drawCoinDisplay(Graphics2D g2)
     {
+        if(isGameOver){return;}
         if(coinDisplay==null||coinAmount==null){return;}
         coinDisplay.paint(g2);
         coinAmount.paint(g2);
@@ -313,6 +328,13 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         }
     }
    
+    private void createCloud()
+    {
+        firstCloud = new Animation(125, 10, 150, 100, 
+            imageManager.getCloudImages(), true, 500);
+        secondCloud = new Animation(600, 30, 150, 100, 
+            imageManager.getCloudImages(), true, 500);
+    }
     private void createCoinAnimationManager()
     {
         coinAnimationManager = new CoinAnimationManager(420,430, 740,20,
@@ -352,16 +374,19 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     {
         String[] texts = quizzManager.getQuestion().split(":");
         answer = texts[1];
-        System.out.println(answer);
-        if(texts[1].length()>0)
+        
+        if(!texts[1].equals("-1"))
         {
+            System.out.println(answer);
             titleDisplay.setTitle(texts[0].toUpperCase());
             createUnderscoreDisplay(answer.length());
             suggestion.setAnswer(answer);
         }
         else
         {
-            //write code there
+            //if full answer
+            quizzManager.resetUsedTitle();
+            createQuestion();
         }
         
         
@@ -420,7 +445,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         coinTextInTimes = new GText(782,97, 20, 20, 
                                     imageManager.getCoinImage(), "", 1);
         timesAmountText = new GText(789, 88, 40, 40, 
-                                    null, "x30", 15);
+                                    null, "x"+Integer.toString(suggestion.getCostForSuggestion()),
+                                     15);
         timesText = new GText(785,92, 40, 40,
                             imageManager.getTimesImage(),"",15);
         suggestionButton = new GButton(780, 120, 50, 50, 
@@ -428,6 +454,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                                         imageManager.getSuggestionClickedButtonImage(), 
                                         "", 1, null);
         addMouseListener(suggestionButton);
+        bindingEventForSuggestionButton();
     }
 
     private void loadAlphaButton()
@@ -497,6 +524,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     public void trigger(Object obj) {
         if(!(obj instanceof String)){return;}
         String info = (String)obj;
+        handleSelectAlphaButton(info);
+        
+    }
+    private void handleSelectAlphaButton(String info) {
         boolean isRightChar = false;
         GButton currentButton = alphaButtons[info.charAt(0)-'A'];
         currentButton.setIsClickable(false);
@@ -519,8 +550,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         {
            handleWrongChar(currentButton);
         }
-        
     }
+    
     private void handleRightChar(GButton currentButtonClicked)
     {
         Vector2 pos = currentButtonClicked.getCurrentPosition();
@@ -572,6 +603,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         changeStateClickableAlphaButtons(false);
         changeStateDisplayAnswer(true);
         currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
+        quizzManager.resetUsedTitle();
         
     }
     private void changeStateDisplayAnswer(boolean state)
@@ -631,6 +663,21 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 player.addCoin(1);
                 coinAddedPerLevel++;
                 coinAmount.setTitle(Integer.toString(player.getCoin()));
+            }
+        });
+    }
+    private void bindingEventForSuggestionButton()
+    {
+        suggestionButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+                if(player.getCoin()<suggestion.getCostForSuggestion()){return;}
+                changeAmountCoin(player.getCoin()-suggestion.getCostForSuggestion());
+                String info = suggestion.getCharSuggestion();
+                if(info.isBlank()){return;}
+                handleSelectAlphaButton(info.toUpperCase());
             }
         });
     }

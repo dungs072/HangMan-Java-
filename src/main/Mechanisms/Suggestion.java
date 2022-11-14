@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Suggestion {
     private ArrayList<String> answers;
-
+    private int costForSuggestion = 30;
     public Suggestion()
     {
         answers = new ArrayList<>();
@@ -48,5 +48,6 @@ public class Suggestion {
         }
         System.out.println();
     }
+    public int getCostForSuggestion(){return costForSuggestion;}
 
 }
