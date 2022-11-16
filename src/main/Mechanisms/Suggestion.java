@@ -11,6 +11,7 @@ public class Suggestion {
     }
     public void setAnswer(String answer)
     {
+        reset();
         for(int i =0;i<answer.length();i++)
         {
             answers.add(Character.toString(answer.charAt(i)));

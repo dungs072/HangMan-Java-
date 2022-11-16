@@ -1,6 +1,7 @@
 package ui;
 
 import java.awt.image.BufferedImage;
+
 import java.awt.Rectangle;
 
 import java.awt.event.*;
@@ -30,6 +31,7 @@ public class GButton extends GText implements MouseListener {
         this.clickedImageButton = clickedImageButton;
         this.currentImage = displayImage;
         rect = getBounds();
+        
     }
     private Rectangle getBounds()
     {
@@ -54,6 +56,8 @@ public class GButton extends GText implements MouseListener {
         if(isPressedUI && clickedImageButton!=null)
         {
             currentTimeAC+=timeDeltaTime;
+
+            
             if(currentTimeAC>=TIME_TRANSITION_DISPLAY_IMAGE)
             {
                 currentTimeAC = 0;
@@ -101,8 +105,6 @@ public class GButton extends GText implements MouseListener {
         g2.drawImage(this.currentImage,currentPosition.getX(),currentPosition.getY(),
                                 currentSize.getX(),currentSize.getY(),null);
     }
-   
-    
     @Override
     public void mouseClicked(MouseEvent e) {
        
@@ -112,7 +114,7 @@ public class GButton extends GText implements MouseListener {
         if(!rect.contains(e.getX(),e.getY())){return;}
         if(e.getButton()==MouseEvent.BUTTON1)
         {
-        
+            
             isPressed = true;
             if(this.clickedImageButton==null){return;}
             currentImage = clickedImageButton;

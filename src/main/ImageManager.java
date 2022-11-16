@@ -15,6 +15,8 @@ public class ImageManager {
     private final int COIN_IMAGE_SIZE = 10;
     private final int HANGMAN_WIN_SIZE = 10;
     private final int CLOUD_SIZE = 5;
+    private final int POLE_SIZE = 5;
+    private final int TITLE_SIZE = 4;
     private BufferedImage[] alphaImages = new BufferedImage[ALPHA_IMAGES_SIZE];
     private BufferedImage[] underscoreImages = new BufferedImage[UNDERSCORE_IMAGES_SIZE];
     private BufferedImage[] hangmanImages = new BufferedImage[HANGMAN_IMAGES_SIZE];
@@ -23,6 +25,8 @@ public class ImageManager {
     private BufferedImage[] coinImages = new BufferedImage[COIN_IMAGE_SIZE];
     private BufferedImage[] hangManWinImages = new BufferedImage[HANGMAN_WIN_SIZE];
     private BufferedImage[] cloudeImages = new BufferedImage[CLOUD_SIZE];
+    private BufferedImage[] introPoleImages = new BufferedImage[POLE_SIZE];
+    private BufferedImage[] titleImages = new BufferedImage[TITLE_SIZE];
 
     private ImageReference popUpImageRefer;
     private ImageReference replayButtonClickedRefer;
@@ -56,6 +60,8 @@ public class ImageManager {
         loadCoinImages();
         loadHangmanWinImages();
         loadCloudImages();
+        loadPoleImages();
+        loadTitleImages();
 
         popUpImageRefer = new ImageReference();
         loadRawImage(popUpImageRefer,"/Assets/PopUps/Pop_up.png");
@@ -146,7 +152,15 @@ public class ImageManager {
     {
         loadRawImages(cloudeImages, CLOUD_SIZE, "/Assets/Items/Clouds/00");
     }
-    
+    private void loadPoleImages()
+    {
+        loadRawImages(introPoleImages, POLE_SIZE, "/Assets/Menus/MainMenu/intro");
+    }
+    private void loadTitleImages()
+    {
+        loadRawImages(titleImages, TITLE_SIZE, "/Assets/Menus/MainMenu/HangmanTitle");
+    }
+
     private void loadRawImages(BufferedImage[] images, int size, String forePath)
     {
         try
@@ -187,6 +201,8 @@ public class ImageManager {
     public BufferedImage[] getCoinImages(){return coinImages;}
     public BufferedImage[] getHangmanWinImages(){return hangManWinImages;}
     public BufferedImage[] getCloudImages(){return cloudeImages;}
+    public BufferedImage[] getPoleImages(){return introPoleImages;}
+    public BufferedImage[] getTitleImages(){return titleImages;}
     public BufferedImage getPopupImage(){return popUpImageRefer.getImage();}
     public BufferedImage getReplayButtonImage(){return replayButtonRefer.getImage();}
     public BufferedImage getReplayClickedButtonImage(){return replayButtonClickedRefer.getImage();}

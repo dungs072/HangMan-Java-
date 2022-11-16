@@ -15,12 +15,18 @@ import Animation.Animation;
 import Animation.CoinAnimationManager;
 import main.Entities.Vector2;
 import main.Mechanisms.Suggestion;
+import main.Sounds.Sound;
 import quizzz.QuizzManager;
 import ui.GButton;
 import ui.GMenu;
 import ui.GText;
 import ui.IEvent;
-
+enum SOUND_STATE
+{
+    PLAY,
+    STOP,
+    LOOP
+}
 public class GamePanel extends JPanel implements Runnable,IEvent {
     // SCREEN SETTINGS
     private final int screenWidth = 900;
@@ -34,7 +40,6 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
 
     private long timeDeltaTime = 0;
 
-    private App app;
     private BufferedImage backgroundImage;
     private Thread gameThread;
 
@@ -73,6 +78,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private GButton playGameButton;
     private GButton highScoreButton;
     private GButton exitGameButton;
+    private Animation poleAnimation;
+    private Animation titleAnimation;
 
     private GMenu pauseMenu;
     private GButton playAgainButton;
@@ -104,6 +111,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private boolean isDisplayAnswer = false;
     private boolean isPausing = false;
     private boolean isShowUpMenu = true;
+    private boolean isContinued = false;
     
     public GamePanel(){
         getBackgroundImageFromSource();
@@ -140,6 +148,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         player = new Player(DEFAULT_SCORE,DEFAULT_COIN);
         suggestion = new Suggestion();
 
+        createTitleAnimation();
+        createPoleAnimation();
         createMainMenu();
         createPauseMenu();
         createPauseButton();
@@ -207,6 +217,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             playGameButton.update(timeDeltaTime,mX,mY);
             highScoreButton.update(timeDeltaTime,mX,mY);
             exitGameButton.update(timeDeltaTime,mX,mY);
+            
         }
         else
         {
@@ -238,6 +249,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         }
         if(isShowUpMenu)
         {
+            drawPoleAnimation(g2);
+            drawTitleAnimation(g2);
             drawMainMenu(g2);
         }
         else
@@ -269,6 +282,16 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
        
        
         g2.dispose();//save memory
+    }
+    private void drawTitleAnimation(Graphics2D g2)
+    {
+        if(titleAnimation==null){return;}
+        titleAnimation.paint(g2, timeDeltaTime);
+    }
+    private void drawPoleAnimation(Graphics2D g2)
+    {
+        if(poleAnimation==null){return;}
+        poleAnimation.paint(g2, timeDeltaTime);
     }
     private void drawMainMenu(Graphics2D g2)
     {
@@ -395,9 +418,17 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         }
     }
     
+    private void createTitleAnimation()
+    {
+        titleAnimation = new Animation(100, 10, 700, 100, imageManager.getTitleImages(), true, 500);
+    }
+    private void createPoleAnimation()
+    {
+        poleAnimation = new Animation(500, 150, 400, 400, imageManager.getPoleImages(), true, 100);
+    }
     private void createMainMenu()
     {
-        mainMenu = new GMenu(10, 100, 350, 550, imageManager.getBackgroundMenuImage());
+        mainMenu = new GMenu(30, 100, 350, 550, imageManager.getBackgroundMenuImage());
         continueButton = mainMenu.createButton(50, 90 , 250, 100, 
                                                 imageManager.getBackgroundButton(), 
                                                 imageManager.getBackgroundClickedButton(), null);
@@ -658,9 +689,11 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         
     }
     private void handleSelectAlphaButton(String info) {
+
         boolean isRightChar = false;
         GButton currentButton = alphaButtons[info.charAt(0)-'A'];
         currentButton.setIsClickable(false);
+        handleSoundEffect(1, SOUND_STATE.PLAY);
         for(int i =0;i<answer.length();i++)
         {
             if(info.toLowerCase().compareTo(Character.toString(answer.charAt(i)))==0)
@@ -724,6 +757,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         hangManImageDisplay.setDisplayImage(imageManager.getHangmanImages()[currentIndexHangMan]);
         int amount = player.getScore()+(DEFAULT_PER_WIN-countNumberCharFalse)*10;
         changeAmountScore(amount);
+        handleSoundEffect(4, SOUND_STATE.PLAY);
     }
     private void handleGameOver()
     {
@@ -734,6 +768,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         changeStateDisplayAnswer(true);
         currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
         quizzManager.resetUsedTitle();
+        handleSoundEffect(3, SOUND_STATE.PLAY);
         
     }
     private void changeStateDisplayAnswer(boolean state)
@@ -790,7 +825,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         {
             @Override
             public void trigger(Object obj) {
-                super.trigger(obj);
+                handleSoundEffect(2, SOUND_STATE.PLAY);
                 player.addCoin(1);
                 coinAddedPerLevel++;
                 coinAmount.setTitle(Integer.toString(player.getCoin()));
@@ -858,6 +893,9 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 super.trigger(obj);
                 isPausing = false;
                 isShowUpMenu = true;
+                stopAllLoopSound();
+                handleSoundEffect(5, SOUND_STATE.LOOP);
+                
             }
         }
         );
@@ -869,7 +907,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             @Override
             public void trigger(Object obj) {
                 super.trigger(obj);
-
+                isShowUpMenu = !isContinued;
             }
         }
         );
@@ -912,6 +950,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void playGame()
     {
+        isContinued = true;
         quizzManager.resetUsedTitle();
         resetLevel();
         
@@ -941,13 +980,40 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         currentIndexHangMan = 0;
         hangManImageDisplay.setDisplayImage(imageManager.getHangmanImages()[currentIndexHangMan]);
     }
+    private void handleSoundEffect(int i , SOUND_STATE sound_STATE)
+    {
+        
+        Sound instance = Sound.Instance();
+        instance.setFile(i);
+        if(sound_STATE==SOUND_STATE.PLAY)
+        {
+            instance.playSound();
+        }
+        else if(sound_STATE==SOUND_STATE.STOP)
+        {
+            instance.stopSound();
+        }
+        else
+        {
+            
+            instance.loopSound();
+        }
+    }
+    private void stopAllLoopSound()
+    {
+        Sound instance = Sound.Instance();
+        instance.setFile(5);
+        instance.stopSound();
+        instance.setFile(6);
+        instance.stopSound();
+    }
 }
 class EventBinding implements IEvent
 {
-
     @Override
     public void trigger(Object obj) {
+        Sound.Instance().setFile(0);
+        Sound.Instance().playSound();
         return;
     }
-    
 }
