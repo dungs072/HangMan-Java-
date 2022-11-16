@@ -31,11 +31,20 @@ public class ImageManager {
     private ImageReference nextButtonRefer;
     private ImageReference suggestionButtonClickedRefer;
     private ImageReference suggestionButtonRefer;
+    private ImageReference pauseButtonClickedRefer;
+    private ImageReference pauseButtonRefer;
+    private ImageReference backgroundButtonRefer;
+    private ImageReference backgroundButtonClickedRefer;
+    private ImageReference backgroundButtonExitRefer;
+    private ImageReference backgroundButtonExitClickedRefer;
+    private ImageReference backgroundMenuRefer;
+
     private ImageReference newRecordRefer;
     private ImageReference chestRefer;
     private ImageReference coinRefer;
     private ImageReference titleRefer;
     private ImageReference timesRefer;
+    private ImageReference pauseMenuRefer;
     private Random random = new Random();
     public ImageManager()
     {
@@ -54,11 +63,27 @@ public class ImageManager {
         loadRawImage(replayButtonRefer, "/Assets/Buttons/PopUp/replay.png");
         replayButtonClickedRefer = new ImageReference();
         loadRawImage(replayButtonClickedRefer, "/Assets/Buttons/PopUp/replay_clicked.png");
-
+        
+        pauseButtonClickedRefer = new ImageReference();
+        loadRawImage(pauseButtonClickedRefer, "/Assets/Buttons/Pause/pause_button_clicked.png");
+        pauseButtonRefer = new ImageReference();
+        loadRawImage(pauseButtonRefer, "/Assets/Buttons/Pause/pause_button_unclicked.png");
+      
         nextButtonRefer = new ImageReference();
         loadRawImage(nextButtonRefer, "/Assets/Buttons/PopUp/next.png");
         nextButtonClickedRefer = new ImageReference();
         loadRawImage(nextButtonClickedRefer, "/Assets/Buttons/PopUp/next_clicked.png");
+
+        backgroundButtonRefer = new ImageReference();
+        loadRawImage(backgroundButtonRefer, "/Assets/Buttons/Background_button_unclicked.png");
+        backgroundButtonClickedRefer = new ImageReference();
+        loadRawImage(backgroundButtonClickedRefer, "/Assets/Buttons/Background_button_clicked.png");
+
+        backgroundButtonExitRefer = new ImageReference();
+        loadRawImage(backgroundButtonExitRefer, "/Assets/Buttons/Background_exit_unclicked.png");
+        backgroundButtonExitClickedRefer = new ImageReference();
+        loadRawImage(backgroundButtonExitClickedRefer, "/Assets/Buttons/Background_button_exit_clicked.png");
+
         newRecordRefer = new ImageReference();
         loadRawImage(newRecordRefer, "/Assets/Items/MyRecord.png");
         chestRefer = new ImageReference();
@@ -73,6 +98,10 @@ public class ImageManager {
         loadRawImage(suggestionButtonClickedRefer,"/Assets/Buttons/Suggestion/suggest_clicked.png");
         timesRefer = new ImageReference();
         loadRawImage(timesRefer,"/Assets/Buttons/Suggestion/times.png");
+        pauseMenuRefer = new ImageReference();
+        loadRawImage(pauseMenuRefer, "/Assets/Menus/Pause/Pause_Menu.png");
+        backgroundMenuRefer = new ImageReference();
+        loadRawImage(backgroundMenuRefer, "/Assets/Menus/MainMenu/Background_menu.png");
     }
     private void loadAlphaImages()
     {
@@ -163,12 +192,20 @@ public class ImageManager {
     public BufferedImage getReplayClickedButtonImage(){return replayButtonClickedRefer.getImage();}
     public BufferedImage getNextButtonImage(){return nextButtonRefer.getImage();}
     public BufferedImage getNextClickedButtonImage(){return nextButtonClickedRefer.getImage();}
+    public BufferedImage getBackgroundButton(){return backgroundButtonRefer.getImage();}
+    public BufferedImage getBackgroundClickedButton(){return backgroundButtonClickedRefer.getImage();}
+    public BufferedImage getBackgroundExitButton(){return backgroundButtonExitRefer.getImage();}
+    public BufferedImage getBackgroundExitClickedButton(){return backgroundButtonExitClickedRefer.getImage();}
     public BufferedImage getChestImage(){return chestRefer.getImage();}
     public BufferedImage getNewRecordImage(){return newRecordRefer.getImage();}
     public BufferedImage getCoinImage(){return coinRefer.getImage();}
     public BufferedImage getTitleImage(){return titleRefer.getImage();}
     public BufferedImage getSuggestionButtonImage(){return suggestionButtonRefer.getImage();}
     public BufferedImage getSuggestionClickedButtonImage(){return suggestionButtonClickedRefer.getImage();}
+    public BufferedImage getPauseButtonImage(){return pauseButtonRefer.getImage();}
+    public BufferedImage getPauseClickedButtonImage(){return pauseButtonClickedRefer.getImage();}
     public BufferedImage getTimesImage(){return timesRefer.getImage();}
+    public BufferedImage getPauseMenuImage(){return pauseMenuRefer.getImage();}
+    public BufferedImage getBackgroundMenuImage(){return backgroundMenuRefer.getImage();}
     public int getLengthHangmanImages(){return HANGMAN_IMAGES_SIZE;}
 }

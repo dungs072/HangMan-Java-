@@ -34,7 +34,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
 
     private long timeDeltaTime = 0;
 
-    
+    private App app;
     private BufferedImage backgroundImage;
     private Thread gameThread;
 
@@ -66,6 +66,19 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private ArrayList<Animation> circleAnims;
     private ArrayList<Animation> xAnims;
 
+    private GButton pauseButton;
+
+    private GMenu mainMenu;
+    private GButton continueButton;
+    private GButton playGameButton;
+    private GButton highScoreButton;
+    private GButton exitGameButton;
+
+    private GMenu pauseMenu;
+    private GButton playAgainButton;
+    private GButton resumeButton;
+    private GButton exitMainMenuButton;
+
     private GMenu popUpOverWindow;
     private GButton replayButton;
 
@@ -89,13 +102,14 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private boolean isGameOver = false;
     private boolean isWin = false;
     private boolean isDisplayAnswer = false;
+    private boolean isPausing = false;
+    private boolean isShowUpMenu = true;
     
     public GamePanel(){
         getBackgroundImageFromSource();
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
-    
         
     }
     private void getBackgroundImageFromSource()
@@ -126,13 +140,15 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         player = new Player(DEFAULT_SCORE,DEFAULT_COIN);
         suggestion = new Suggestion();
 
+        createMainMenu();
+        createPauseMenu();
+        createPauseButton();
         createHangmanWinDisplay();
         createCoinAnimationManager();
         createTitleDisplay();
         createAnswerDisplay();
         createCoinDisplay();
         createScoreDisplay();
-        createQuestion();
         createSuggestionButton();
         createCloud();
         loadAlphaButton();
@@ -179,6 +195,19 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             nextQuesButton.update(timeDeltaTime,mX,mY);
             coinAnimationManager.update(timeDeltaTime);
         }
+        else if(isPausing)
+        {
+            resumeButton.update(timeDeltaTime,mX,mY);
+            playAgainButton.update(timeDeltaTime,mX,mY);
+            exitMainMenuButton.update(timeDeltaTime,mX,mY);
+        }
+        else if(isShowUpMenu)
+        {
+            continueButton.update(timeDeltaTime,mX,mY);
+            playGameButton.update(timeDeltaTime,mX,mY);
+            highScoreButton.update(timeDeltaTime,mX,mY);
+            exitGameButton.update(timeDeltaTime,mX,mY);
+        }
         else
         {
             for(int i =0;i<ALPHA_BUTTON_SIZE;i++)
@@ -186,6 +215,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 alphaButtons[i].update(timeDeltaTime,mX, mY);
             }
             suggestionButton.update(timeDeltaTime, mX, mY);
+            pauseButton.update(timeDeltaTime,mX,mY);
         }
         
     }
@@ -202,24 +232,61 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         {
             g2.drawImage(backgroundImage,0,0,screenWidth,screenHeight,null);
         }
-        if(!isGameOver)
+        if(!isGameOver&&!isPausing&&!isShowUpMenu)
         {
             drawAlphaButton(g2);
         }
-        drawHangmanWinAnimation(g2);
-        drawTitleDisplay(g2);
-        drawCoinDisplay(g2);
-        drawScoreDisplay(g2);
-        drawAnswerDisplay(g2);
-        drawUnderscoreText(g2);
-        drawHangmanAnimation(g2);
-        drawCircleAnimations(g2);
-        drawXAnimations(g2);
-        drawMenus(g2);
-        drawClouds(g2);
-        drawSuggestionButton(g2);
-        drawCoinAnimationManager(g2);
+        if(isShowUpMenu)
+        {
+            drawMainMenu(g2);
+        }
+        else
+        {
+            if(!isPausing)
+            {
+                drawHangmanWinAnimation(g2);
+                drawTitleDisplay(g2);
+                drawCoinDisplay(g2);
+                drawScoreDisplay(g2);
+                drawAnswerDisplay(g2);
+                drawUnderscoreText(g2);
+                drawHangmanAnimation(g2);
+                drawCircleAnimations(g2);
+                drawXAnimations(g2);
+                drawMenus(g2);
+                drawClouds(g2);
+                
+                drawPauseButton(g2);
+                drawSuggestionButton(g2);
+                drawCoinAnimationManager(g2);
+            }
+            else
+            {
+                drawPauseMenu(g2);
+            }
+        }
+      
+       
+       
         g2.dispose();//save memory
+    }
+    private void drawMainMenu(Graphics2D g2)
+    {
+        if(mainMenu==null){return;}
+        mainMenu.paint(g2);
+    }
+    private void drawPauseMenu(Graphics2D g2)
+    {
+
+        if(isGameOver||isWin){return;}
+        if(pauseMenu==null){return;}
+        pauseMenu.paint(g2);
+    }
+    private void drawPauseButton(Graphics2D g2)
+    {
+        if(isGameOver||isWin||isPausing){return;}
+        if(pauseButton==null){return;}
+        pauseButton.paint(g2);
     }
     private void drawClouds(Graphics2D g2)
     {
@@ -327,7 +394,70 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             popUpWinWindow.paint(g2);
         }
     }
-   
+    
+    private void createMainMenu()
+    {
+        mainMenu = new GMenu(10, 100, 350, 550, imageManager.getBackgroundMenuImage());
+        continueButton = mainMenu.createButton(50, 90 , 250, 100, 
+                                                imageManager.getBackgroundButton(), 
+                                                imageManager.getBackgroundClickedButton(), null);
+        mainMenu.createText(50, 90, 250, 100, null, "CONTINUE", 30);
+        playGameButton = mainMenu.createButton(50, 190, 250, 100, 
+                                                imageManager.getBackgroundButton(), 
+                                                imageManager.getBackgroundClickedButton(), null);
+        mainMenu.createText(50,190,250,100,null,"PLAY",30);
+        highScoreButton = mainMenu.createButton(50, 290, 250, 100, 
+                                                imageManager.getBackgroundButton(), 
+                                                imageManager.getBackgroundClickedButton(), null);
+        mainMenu.createText(50,290,250,100,null,"HIGH SCORE",30);
+        exitGameButton = mainMenu.createButton(50, 390, 250, 100, 
+                                                imageManager.getBackgroundExitButton(), 
+                                                imageManager.getBackgroundExitClickedButton(), null);
+        mainMenu.createText(50,390,250,100,null,"EXIT",30);
+        addMouseListener(continueButton);
+        addMouseListener(playGameButton);
+        addMouseListener(highScoreButton);
+        addMouseListener(exitGameButton);
+        bindingEventForContinueButton();
+        bindingEventForPlayGameButton();
+        bindingEventForHighScoreButton();
+        bindingEventForExitGameButton();
+
+    }
+    private void createPauseMenu()
+    {
+        pauseMenu = new GMenu(260, 100, 350, 450, imageManager.getPauseMenuImage());
+        pauseMenu.createText(73, 10, 200, 30, null, "PAUSE", 30);
+        resumeButton = pauseMenu.createButton(50, 70, 250, 100, 
+                                                imageManager.getBackgroundButton(), 
+                                                imageManager.getBackgroundClickedButton(), null);
+        pauseMenu.createText(50,70, 250, 100, null,"RESUME",30);
+        playAgainButton = pauseMenu.createButton(50, 195, 250, 100,
+                                                    imageManager.getBackgroundButton() ,
+                                                    imageManager.getBackgroundClickedButton(), null);
+        pauseMenu.createText(50,190, 250, 100, null,"PLAY AGAIN",30);
+        exitMainMenuButton = pauseMenu.createButton(50, 320, 250, 100,
+                                                    imageManager.getBackgroundExitButton(),
+                                                    imageManager.getBackgroundExitClickedButton(), null);
+        pauseMenu.createText(50,320, 250, 100, null,"EXIT MENU",30);
+        
+        addMouseListener(exitMainMenuButton);
+        addMouseListener(resumeButton);
+        addMouseListener(playAgainButton);
+        bindingEventForResumeButton();
+        bindingEventForPlayAgainButton();
+        bindingEventForExitMenuButton();
+    
+    }
+    private void createPauseButton()
+    {
+        pauseButton = new GButton(20, 50, 75, 75, 
+                    imageManager.getPauseButtonImage(), 
+                    imageManager.getPauseClickedButtonImage(), 
+                    "", 1, null);
+        addMouseListener(pauseButton);
+        bindingEventForPauseButton();
+    }
     private void createCloud()
     {
         firstCloud = new Animation(125, 10, 150, 100, 
@@ -628,6 +758,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             public void trigger(Object obj) {
                 super.trigger(obj);
                 isGameOver = false;
+                quizzManager.resetUsedTitle();
                 resetLevel();
                 popUpOverWindow.setCanDisplay(false);
                 coinAddedPerLevel = 0;
@@ -680,6 +811,113 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 handleSelectAlphaButton(info.toUpperCase());
             }
         });
+    }
+    private void bindingEventForPauseButton()
+    {
+        pauseButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                
+                super.trigger(obj);
+                isPausing = true;
+            }
+        });
+    }
+    private void bindingEventForResumeButton()
+    {
+        resumeButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+                isPausing = false;
+            }
+        }
+        );
+    }
+    private void bindingEventForPlayAgainButton()
+    {
+        playAgainButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+                isPausing = false;
+                playGame();
+            }
+        }
+        );
+    }
+    private void bindingEventForExitMenuButton()
+    {
+        exitMainMenuButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+                isPausing = false;
+                isShowUpMenu = true;
+            }
+        }
+        );
+    }
+    private void bindingEventForContinueButton()
+    {
+        continueButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+
+            }
+        }
+        );
+    }
+    private void bindingEventForPlayGameButton()
+    {
+        playGameButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+                isShowUpMenu = false;
+                playGame();
+            }
+        });
+    }
+    private void bindingEventForHighScoreButton()
+    {
+        highScoreButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+
+            }
+        }
+        );
+    }
+    private void bindingEventForExitGameButton()
+    {
+        exitGameButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+                System.exit(0);
+            }
+        }
+        );
+    }
+    private void playGame()
+    {
+        quizzManager.resetUsedTitle();
+        resetLevel();
+        
+        coinAddedPerLevel = 0;
+        changeAmountCoin(DEFAULT_COIN);
+        changeAmountScore(DEFAULT_SCORE);
     }
     private void changeAmountCoin(int amount)
     {
