@@ -72,5 +72,18 @@ public class HighScore {
         }
         if(index==-1){return;}
         highScores.add(index, name+" "+Integer.toString(score));
+        if(highScores.size()==MAX_HIGH_SCORE+1)
+        {
+            highScores.remove(MAX_HIGH_SCORE);
+        }
+        
+    }
+    public String getHighScore(int index)
+    {
+        if(index>=highScores.size())
+        {
+            return "";
+        }
+        return highScores.get(index);
     }
 }

@@ -9,11 +9,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+import javax.lang.model.util.ElementScanner14;
 import javax.swing.JPanel;
 
 import Animation.Animation;
 import Animation.CoinAnimationManager;
 import main.Entities.Vector2;
+import main.Mechanisms.HighScore;
 import main.Mechanisms.Suggestion;
 import main.Sounds.Sound;
 import quizzz.QuizzManager;
@@ -100,8 +102,12 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private GText timesAmountText;
 
     private GText highScoreTitle;
+    private GText[] rankTexts;
+    private GText[] nameTexts;
+    private GText[] scoreTexts;
     private GButton exitMainMenuHighScoreButton;
-
+    private GText exitMainMenuHighScoreButtonText;
+    private HighScore highScore;
 
     private Suggestion suggestion;
 
@@ -152,7 +158,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         quizzManager = new QuizzManager();
         player = new Player(DEFAULT_SCORE,DEFAULT_COIN);
         suggestion = new Suggestion();
-
+        highScore = new HighScore();
+        createHighScore();
         createTitleAnimation();
         createPoleAnimation();
         createMainMenu();
@@ -225,6 +232,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             exitGameButton.update(timeDeltaTime,mX,mY);
             
         }
+        else if(isHighScore)
+        {
+            exitMainMenuHighScoreButton.update(timeDeltaTime,mX,mY);
+        }
         else
         {
             for(int i =0;i<ALPHA_BUTTON_SIZE;i++)
@@ -249,7 +260,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         {
             g2.drawImage(backgroundImage,0,0,screenWidth,screenHeight,null);
         }
-        if(!isGameOver&&!isPausing&&!isShowUpMenu)
+        if(!isGameOver&&!isPausing&&!isShowUpMenu&&!isHighScore)
         {
             drawAlphaButton(g2);
         }
@@ -258,6 +269,11 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             drawPoleAnimation(g2);
             drawTitleAnimation(g2);
             drawMainMenu(g2);
+           
+        }
+        else if(isHighScore)
+        {
+            drawHighScore(g2);
         }
         else
         {
@@ -284,10 +300,23 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 drawPauseMenu(g2);
             }
         }
-      
-       
-       
         g2.dispose();//save memory
+    }
+    private void drawHighScore(Graphics2D g2)
+    {
+        if(highScoreTitle==null||exitMainMenuHighScoreButton==null){return;}
+        if(rankTexts==null||nameTexts==null||scoreTexts==null){return;}
+        highScoreTitle.paint(g2);
+        exitMainMenuHighScoreButton.paint(g2);
+        exitMainMenuHighScoreButtonText.paint(g2);
+
+        for(int i =0;i<rankTexts.length;i++)
+        {
+            if(rankTexts[i]==null||nameTexts[i]==null||scoreTexts[i]==null){continue;}
+            rankTexts[i].paint(g2);
+            nameTexts[i].paint(g2);
+            scoreTexts[i].paint(g2);
+        }
     }
     private void drawTitleAnimation(Graphics2D g2)
     {
@@ -426,7 +455,51 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     
     private void createHighScore()
     {
+        int maxScore = 10;
+        int offsetY = 50;
+        int offsetX = 225;
+        int startY = 80;
 
+        rankTexts = new GText[maxScore];
+        nameTexts = new GText[maxScore];
+        scoreTexts = new GText[maxScore];
+        highScoreTitle = new GText(360, 20, 200, 50, 
+                                null, "HIGH SCORE", 30);
+        exitMainMenuHighScoreButton = new GButton(10, 590, 250, 50, 
+                                                imageManager.getBackgroundButton(), 
+                                                imageManager.getBackgroundClickedButton(), 
+                                                "EXIT MAIN MENU",20,null);
+        exitMainMenuHighScoreButtonText = new GText(10, 590, 250, 50, 
+                                                null,"EXIT MENU", 25);
+        
+        String title = "";
+        for(int i =0;i<maxScore;i++)
+        {    
+            if(i==0)
+            {
+                title = Integer.toString(i+1)+"st";
+            }
+            else if(i==1)
+            {
+                title = Integer.toString(i+1)+"nd";
+            }
+            else if(i==2)
+            {
+                title = Integer.toString(i+1)+"rd";
+            }
+            else
+            {
+                title = Integer.toString(i+1)+"th";
+            }
+            rankTexts[i] = new GText(200, i*offsetY+startY, 50, 50, 
+                                    null, title, 30);
+            nameTexts[i] = new GText(200+offsetX, i*offsetY+startY, 50, 50, 
+                                    null, title, 30);
+            scoreTexts[i] = new GText(200+offsetX*2, i*offsetY+startY, 50, 50, 
+                                    null, title, 30);
+        }
+        addMouseListener(exitMainMenuHighScoreButton);
+        bindingEventForExitMainMenuHighScoreButton();
     }
     private void createTitleAnimation()
     {
@@ -944,7 +1017,9 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             @Override
             public void trigger(Object obj) {
                 super.trigger(obj);
-
+                loadHighScorePanel();
+                isShowUpMenu = false;
+                isHighScore = true;
             }
         }
         );
@@ -957,6 +1032,19 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             public void trigger(Object obj) {
                 super.trigger(obj);
                 System.exit(0);
+            }
+        }
+        );
+    }
+    private void bindingEventForExitMainMenuHighScoreButton()
+    {
+        exitMainMenuHighScoreButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+                isHighScore = false;
+                isShowUpMenu = true;
             }
         }
         );
@@ -1015,6 +1103,25 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             {
                 instance.playGamePlaySound();
             }
+        }
+    }
+    private void loadHighScorePanel()
+    {
+        int maxScores = 10;
+        String name = "";
+        String score = "";
+        for(int i =0;i<maxScores;i++)
+        {
+            String rawData = highScore.getHighScore(i);
+            if(rawData==""){name = "";score = "";}
+            else
+            {
+                String[] texts = rawData.split(" ");
+                name = texts[0];
+                score = texts[1];
+            }
+            nameTexts[i].setTitle(name);
+            scoreTexts[i].setTitle(score);
         }
     }
 }
