@@ -164,6 +164,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         loadAlphaButton();
         loadHangMan();
         loadMenus();
+        handleSoundEffect(5, SOUND_STATE.LOOP);
     }
     @Override
     public void run() {
@@ -799,6 +800,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 coinAddedPerLevel = 0;
                 changeAmountCoin(DEFAULT_COIN);
                 changeAmountScore(DEFAULT_SCORE);
+                handleSoundEffect(6, SOUND_STATE.LOOP);
             }
         });
     }
@@ -880,6 +882,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 super.trigger(obj);
                 isPausing = false;
                 playGame();
+                handleSoundEffect(6, SOUND_STATE.LOOP);
             }
         }
         );
@@ -893,9 +896,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 super.trigger(obj);
                 isPausing = false;
                 isShowUpMenu = true;
-                stopAllLoopSound();
                 handleSoundEffect(5, SOUND_STATE.LOOP);
-                
             }
         }
         );
@@ -908,6 +909,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             public void trigger(Object obj) {
                 super.trigger(obj);
                 isShowUpMenu = !isContinued;
+                if(isShowUpMenu){return;}
+                handleSoundEffect(6, SOUND_STATE.LOOP);
             }
         }
         );
@@ -921,6 +924,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 super.trigger(obj);
                 isShowUpMenu = false;
                 playGame();
+                handleSoundEffect(6, SOUND_STATE.LOOP);
             }
         });
     }
@@ -982,7 +986,6 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void handleSoundEffect(int i , SOUND_STATE sound_STATE)
     {
-        
         Sound instance = Sound.Instance();
         instance.setFile(i);
         if(sound_STATE==SOUND_STATE.PLAY)
@@ -995,17 +998,15 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         }
         else
         {
-            
-            instance.loopSound();
+            if(i==5)
+            {
+                instance.playIntroSound();
+            }
+            else if(i==6)
+            {
+                instance.playGamePlaySound();
+            }
         }
-    }
-    private void stopAllLoopSound()
-    {
-        Sound instance = Sound.Instance();
-        instance.setFile(5);
-        instance.stopSound();
-        instance.setFile(6);
-        instance.stopSound();
     }
 }
 class EventBinding implements IEvent

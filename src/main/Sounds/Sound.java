@@ -7,6 +7,11 @@ public class Sound
     private static Sound instance;
     private Clip clip;
     private URL soundURL[] = new URL[30];
+    private Clip introClip;
+    private Clip gamePlayClip;
+
+    private float volumeIntroSound = -10f;
+    private float volumeGamePlaySound = -15f;
     private Sound() 
     {
         String path = "/Assets/Sounds/";
@@ -18,7 +23,26 @@ public class Sound
         soundURL[5] = getClass().getResource(path+"menu_intro.wav");
         soundURL[6] = getClass().getResource(path+"gameplay_sound.wav");
     }
-
+    private void setFileForLoopSound(int i)
+    {
+        AudioInputStream ais;
+        try {
+            if(i==5)
+            {
+                ais = AudioSystem.getAudioInputStream(soundURL[5]);
+                introClip = AudioSystem.getClip();
+                introClip.open(ais);
+            }
+            else if(i==6)
+            {
+                ais = AudioSystem.getAudioInputStream(soundURL[6]);
+                gamePlayClip = AudioSystem.getClip();
+                gamePlayClip.open(ais);
+            }   
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public void setFile(int i)
     {
         AudioInputStream ais;
@@ -38,9 +62,36 @@ public class Sound
     {
         clip.stop();
     }
-    public void loopSound()
+    public void playIntroSound()
     {
-        clip.loop(Clip.LOOP_CONTINUOUSLY);
+        stopAllLoopSounds();
+        setFileForLoopSound(5);
+        FloatControl gainControl = (FloatControl) introClip.getControl(FloatControl.Type.MASTER_GAIN);
+        gainControl.setValue(volumeIntroSound); 
+        introClip.loop(Clip.LOOP_CONTINUOUSLY);
+    }
+    public void playGamePlaySound()
+    {
+        stopAllLoopSounds();
+        setFileForLoopSound(6);
+        FloatControl gainControl = (FloatControl) gamePlayClip.getControl(FloatControl.Type.MASTER_GAIN);
+        gainControl.setValue(volumeGamePlaySound);
+        gamePlayClip.loop(Clip.LOOP_CONTINUOUSLY);
+    }
+    private void stopAllLoopSounds()
+    {
+        stopIntroSound();
+        stopGamePlaySound();
+    }
+    private void stopIntroSound()
+    {
+        if(introClip==null){return;}
+        introClip.stop();
+    }
+    private void stopGamePlaySound()
+    {
+        if(gamePlayClip==null){return;}
+        gamePlayClip.stop();
     }
     public static Sound Instance()
     {
