@@ -99,6 +99,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private GText coinTextInTimes;
     private GText timesAmountText;
 
+    private GText highScoreTitle;
+    private GButton exitMainMenuHighScoreButton;
+
+
     private Suggestion suggestion;
 
     private int currentIndexHangMan = 0;
@@ -112,6 +116,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private boolean isPausing = false;
     private boolean isShowUpMenu = true;
     private boolean isContinued = false;
+    private boolean isHighScore = false;
     
     public GamePanel(){
         getBackgroundImageFromSource();
@@ -419,6 +424,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         }
     }
     
+    private void createHighScore()
+    {
+
+    }
     private void createTitleAnimation()
     {
         titleAnimation = new Animation(100, 10, 700, 100, imageManager.getTitleImages(), true, 500);
