@@ -22,6 +22,7 @@ public class Sound
         soundURL[4] = getClass().getResource(path+"success.wav");
         soundURL[5] = getClass().getResource(path+"menu_intro.wav");
         soundURL[6] = getClass().getResource(path+"gameplay_sound.wav");
+        soundURL[7] = getClass().getResource(path+"clap.wav");
     }
     private void setFileForLoopSound(int i)
     {

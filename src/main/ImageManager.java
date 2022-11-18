@@ -17,6 +17,7 @@ public class ImageManager {
     private final int CLOUD_SIZE = 5;
     private final int POLE_SIZE = 5;
     private final int TITLE_SIZE = 4;
+    private final int FIREWORK_SIZE = 30;
     private BufferedImage[] alphaImages = new BufferedImage[ALPHA_IMAGES_SIZE];
     private BufferedImage[] underscoreImages = new BufferedImage[UNDERSCORE_IMAGES_SIZE];
     private BufferedImage[] hangmanImages = new BufferedImage[HANGMAN_IMAGES_SIZE];
@@ -27,6 +28,7 @@ public class ImageManager {
     private BufferedImage[] cloudeImages = new BufferedImage[CLOUD_SIZE];
     private BufferedImage[] introPoleImages = new BufferedImage[POLE_SIZE];
     private BufferedImage[] titleImages = new BufferedImage[TITLE_SIZE];
+    private BufferedImage[] fireworkImages = new BufferedImage[FIREWORK_SIZE];
 
     private ImageReference popUpImageRefer;
     private ImageReference replayButtonClickedRefer;
@@ -62,6 +64,7 @@ public class ImageManager {
         loadCloudImages();
         loadPoleImages();
         loadTitleImages();
+        loadFireworkImages();
 
         popUpImageRefer = new ImageReference();
         loadRawImage(popUpImageRefer,"/Assets/PopUps/Pop_up.png");
@@ -156,6 +159,11 @@ public class ImageManager {
     {
         loadRawImages(introPoleImages, POLE_SIZE, "/Assets/Menus/MainMenu/intro");
     }
+    private void loadFireworkImages()
+    {
+        loadRawImages(fireworkImages, FIREWORK_SIZE, "/Assets/Items/Fireworks/");
+    }
+    
     private void loadTitleImages()
     {
         loadRawImages(titleImages, TITLE_SIZE, "/Assets/Menus/MainMenu/HangmanTitle");
@@ -203,6 +211,7 @@ public class ImageManager {
     public BufferedImage[] getCloudImages(){return cloudeImages;}
     public BufferedImage[] getPoleImages(){return introPoleImages;}
     public BufferedImage[] getTitleImages(){return titleImages;}
+    public BufferedImage[] getFireworkImages(){return fireworkImages;}
     public BufferedImage getPopupImage(){return popUpImageRefer.getImage();}
     public BufferedImage getReplayButtonImage(){return replayButtonRefer.getImage();}
     public BufferedImage getReplayClickedButtonImage(){return replayButtonClickedRefer.getImage();}

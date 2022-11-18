@@ -26,7 +26,6 @@ public class Animation extends InvisibleEntity{
             currentTimeAc = 0;
             if(isLoop)
             {
-                
                 setNextCurrentIndexImage();
             }
             else

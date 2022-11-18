@@ -71,6 +71,14 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
     private GButton saveHighScoreButton;
     private GText highScoreDisplayText;
     private GTextField inputText;
+    private Animation fireworkAnim1;
+    private Animation fireworkAnim2;
+    private Animation fireworkAnim3;
+    private Animation fireworkAnim4;
+    private Animation fireworkAnim5;
+    private Animation fireworkAnim6;
+    private Animation fireworkAnim7;
+    private Animation fireworkAnim8;
 
     private ArrayList<GText> underscores;
     private ArrayList<GText> charAnswers;
@@ -329,6 +337,14 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
     {
         if(inputHighScoreMenu==null){return;}
         inputHighScoreMenu.paint(g2);
+        fireworkAnim1.paint(g2, timeDeltaTime);
+        fireworkAnim2.paint(g2, timeDeltaTime);
+        fireworkAnim3.paint(g2, timeDeltaTime);
+        fireworkAnim4.paint(g2, timeDeltaTime);
+        fireworkAnim5.paint(g2, timeDeltaTime);
+        fireworkAnim6.paint(g2, timeDeltaTime);
+        fireworkAnim7.paint(g2, timeDeltaTime);
+        fireworkAnim8.paint(g2, timeDeltaTime);
     }
     private void drawHighScore(Graphics2D g2)
     {
@@ -504,6 +520,29 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
         addMouseListener(inputText);
         bindingEventForSaveHighScoreButton();
         bindingEventForTextInputField();
+        createFireworkAnimation();
+    }
+    private void createFireworkAnimation()
+    {
+        int width = 200;
+        int height = 200;
+        fireworkAnim1 = new Animation(100, 100, width, height, 
+                                    imageManager.getFireworkImages(),true, 100);
+        
+        fireworkAnim2 = new Animation(400, 100, width, height, 
+                                    imageManager.getFireworkImages(),true, 100);
+        fireworkAnim3 = new Animation(250, 300, width, height, 
+                                    imageManager.getFireworkImages(),true, 100);
+        fireworkAnim4 = new Animation(500, 300, width, height, 
+                                    imageManager.getFireworkImages(),true, 100);
+        fireworkAnim5 = new Animation(700, 400, width, height, 
+                                    imageManager.getFireworkImages(),true, 100);
+        fireworkAnim6 = new Animation(100, 300, width, height, 
+                                    imageManager.getFireworkImages(),true, 100);
+        fireworkAnim7 = new Animation(150, 450, width, height, 
+                                    imageManager.getFireworkImages(),true, 100);
+        fireworkAnim8 = new Animation(700, 75, width, height, 
+                                    imageManager.getFireworkImages(),true, 100);
     }
     private void createHighScore()
     {
@@ -896,11 +935,13 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
     }
     private void handleGameOver()
     {
+        int soundIndex = 3;
         if(highScore.isHighScore(player.getScore()))
         {
             isInputMenu = true;
             saveHighScoreButton.setIsDisplaying(true);
             highScoreDisplayText.setTitle(Integer.toString(player.getScore()));
+            soundIndex = 7;
         }
         isGameOver = true;
         popUpOverWindow.setCanDisplay(true);
@@ -909,7 +950,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
         changeStateDisplayAnswer(true);
         currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
         quizzManager.resetUsedTitle();
-        handleSoundEffect(3, SOUND_STATE.PLAY);
+        if(isHighScore){return;}
+        handleSoundEffect(soundIndex, SOUND_STATE.PLAY);
     }
     private void changeStateDisplayAnswer(boolean state)
     {
