@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
-import javax.lang.model.util.ElementScanner14;
 import javax.swing.JPanel;
+import java.awt.event.*;
 
 import Animation.Animation;
 import Animation.CoinAnimationManager;
@@ -22,6 +22,7 @@ import quizzz.QuizzManager;
 import ui.GButton;
 import ui.GMenu;
 import ui.GText;
+import ui.GTextField;
 import ui.IEvent;
 enum SOUND_STATE
 {
@@ -29,7 +30,7 @@ enum SOUND_STATE
     STOP,
     LOOP
 }
-public class GamePanel extends JPanel implements Runnable,IEvent {
+public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
     // SCREEN SETTINGS
     private final int screenWidth = 900;
     private final int screenHeight = 650;
@@ -66,6 +67,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private GText scoreDisplay;
     private GText scoreOverPopup;
 
+    private GMenu inputHighScoreMenu;
+    private GButton saveHighScoreButton;
+    private GText highScoreDisplayText;
+    private GTextField inputText;
 
     private ArrayList<GText> underscores;
     private ArrayList<GText> charAnswers;
@@ -123,12 +128,15 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     private boolean isShowUpMenu = true;
     private boolean isContinued = false;
     private boolean isHighScore = false;
+    private boolean isInputMenu = false;
     
     public GamePanel(){
         getBackgroundImageFromSource();
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
+        this.setFocusable(true);
+        this.addKeyListener(this);
         
     }
     private void getBackgroundImageFromSource()
@@ -159,6 +167,8 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         player = new Player(DEFAULT_SCORE,DEFAULT_COIN);
         suggestion = new Suggestion();
         highScore = new HighScore();
+
+        createInputMenu();
         createHighScore();
         createTitleAnimation();
         createPoleAnimation();
@@ -236,6 +246,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         {
             exitMainMenuHighScoreButton.update(timeDeltaTime,mX,mY);
         }
+        else if(isInputMenu)
+        {
+            saveHighScoreButton.update(timeDeltaTime,mX,mY);
+        }
         else
         {
             for(int i =0;i<ALPHA_BUTTON_SIZE;i++)
@@ -300,7 +314,14 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
                 drawPauseMenu(g2);
             }
         }
+        drawInputMenuHighScore(g2);
         g2.dispose();//save memory
+    }
+    
+    private void drawInputMenuHighScore(Graphics2D g2)
+    {
+        if(inputHighScoreMenu==null){return;}
+        inputHighScoreMenu.paint(g2);
     }
     private void drawHighScore(Graphics2D g2)
     {
@@ -453,6 +474,27 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         }
     }
     
+    private void createInputMenu()
+    {
+        inputHighScoreMenu = new GMenu(260, 200, 400, 300, 
+                                        imageManager.getPauseMenuImage());
+        inputHighScoreMenu.createText(95, -7, 200, 50, 
+                                        null, "YOU GET A HIGH SCORE", 20);
+        inputHighScoreMenu.createText(100, 200, 200, 75, 
+                                        null, "SAVE", 25);
+        inputHighScoreMenu.createText(150, 100, 100, 50, null, "Please enter your name!", 20);
+        highScoreDisplayText = inputHighScoreMenu.createText(140, 50, 100, 50, 
+                                                            null, "SCORE", 25);
+
+        saveHighScoreButton = inputHighScoreMenu.createButton(100, 200, 200, 75, 
+                                                            imageManager.getBackgroundButton(), 
+                                                            imageManager.getBackgroundClickedButton(), null);
+        
+        inputText = inputHighScoreMenu.createTextInput(100, 150, 200, 30,   
+                                        null, "Hello", 25);
+        addMouseListener(saveHighScoreButton);
+        bindingEventForSaveHighScoreButton();
+    }
     private void createHighScore()
     {
         int maxScore = 10;
@@ -844,6 +886,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
     }
     private void handleGameOver()
     {
+        if(highScore.isHighScore(player.getScore()))
+        {
+
+        }
         isGameOver = true;
         popUpOverWindow.setCanDisplay(true);
         scoreOverPopup.setTitle("Your score: "+Integer.toString(player.getScore()));
@@ -852,6 +898,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
         quizzManager.resetUsedTitle();
         handleSoundEffect(3, SOUND_STATE.PLAY);
+        
         
     }
     private void changeStateDisplayAnswer(boolean state)
@@ -1049,6 +1096,18 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
         }
         );
     }
+    private void bindingEventForSaveHighScoreButton()
+    {
+        saveHighScoreButton.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+
+            }
+        }
+        );
+    }
     private void playGame()
     {
         isContinued = true;
@@ -1123,6 +1182,21 @@ public class GamePanel extends JPanel implements Runnable,IEvent {
             nameTexts[i].setTitle(name);
             scoreTexts[i].setTitle(score);
         }
+    }
+    @Override
+    public void keyTyped(KeyEvent e) {
+        if(inputText==null){return;}
+        inputText.updateTitle(e.getKeyChar());
+    }
+    @Override
+    public void keyPressed(KeyEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+    @Override
+    public void keyReleased(KeyEvent e) {
+        // TODO Auto-generated method stub
+        
     }
 }
 class EventBinding implements IEvent

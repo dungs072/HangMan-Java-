@@ -10,7 +10,7 @@ import main.Entities.MyRunable;
 public class GText extends Entity implements MyRunable{
 
     private Font font;
-    private String title;
+    protected String title;
     private AffineTransform affineTransform;
     private FontRenderContext frc;
     public GText(int x, int y,int width, int height, BufferedImage displayImage,String title,int fontSize) {

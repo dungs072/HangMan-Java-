@@ -12,6 +12,7 @@ public class GMenu extends Entity implements MyRunable {
 
     private ArrayList<GButton> buttons;
     private ArrayList<GText> texts;
+    private GTextField inputText;
     private boolean canDisplay = true;
     public GMenu(int x, int y, int width, int height, BufferedImage displayImage) {
         super(x, y, width, height, displayImage);
@@ -30,9 +31,14 @@ public class GMenu extends Entity implements MyRunable {
         texts.add(new GText(pos.getX()+x, pos.getY()+y, width, height, displayImage, title, fontSize));
         return texts.get(texts.size()-1);
     }
+    public GTextField createTextInput(int x, int y, int width, int height, BufferedImage displayImage, String title, int fontSize)
+    {
+        Vector2 pos = currentPosition;
+        inputText = new GTextField(pos.getX()+x, pos.getY()+y, width, height, displayImage, title, fontSize);
+        return inputText;
+    }
     @Override
     public void update(long timeDeltaTime) {
-        // TODO Auto-generated method stub
         
     }
     @Override
@@ -48,6 +54,8 @@ public class GMenu extends Entity implements MyRunable {
         {
             text.paint(g2);
         }
+        if(inputText==null){return;}
+        inputText.paint(g2);
 
         
     }
