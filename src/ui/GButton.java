@@ -24,6 +24,7 @@ public class GButton extends GText implements MouseListener {
     private boolean isPressed = false;
     private boolean isPressedUI = false;
     private boolean isReleaseUI = false;
+    private boolean isDisplaying = true;
     
     public GButton(int x, int y, int width, int height, BufferedImage displayImage,BufferedImage clickedImageButton, String title, int fontSize,IEvent event) {
         super(x, y, width, height, displayImage, title, fontSize);
@@ -32,6 +33,10 @@ public class GButton extends GText implements MouseListener {
         this.currentImage = displayImage;
         rect = getBounds();
         
+    }
+    public void setIsDisplaying(boolean state)
+    {
+        isDisplaying = state;
     }
     private Rectangle getBounds()
     {
@@ -52,7 +57,6 @@ public class GButton extends GText implements MouseListener {
     }
     public void update(long timeDeltaTime,int x, int y)
     {
-
         if(isPressedUI && clickedImageButton!=null)
         {
             currentTimeAC+=timeDeltaTime;
@@ -111,10 +115,10 @@ public class GButton extends GText implements MouseListener {
     }
     @Override
     public void mousePressed(MouseEvent e) {
+        if(!isDisplaying){return;}
         if(!rect.contains(e.getX(),e.getY())){return;}
         if(e.getButton()==MouseEvent.BUTTON1)
         {
-            
             isPressed = true;
             if(this.clickedImageButton==null){return;}
             currentImage = clickedImageButton;
@@ -123,6 +127,7 @@ public class GButton extends GText implements MouseListener {
     }
     @Override
     public void mouseReleased(MouseEvent e) {
+        if(!isDisplaying){return;}
         if(e.getButton()==MouseEvent.BUTTON1)
         {
             isPressed = false;

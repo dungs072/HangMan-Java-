@@ -3,15 +3,21 @@ package ui;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.event.*;
+import java.awt.Rectangle;
 
-
-
-public class GTextField extends GText {
+public class GTextField extends GText implements MouseListener{
     private IEvent event = null;
     private int lengthTitle = 10;
-
+    private boolean isFocusable = false;
+    private Rectangle rect;
     public GTextField(int x, int y, int width, int height, BufferedImage displayImage, String title, int fontSize) {
         super(x, y, width, height, displayImage, title, fontSize);
+        rect = getBounds();
+    }
+    private Rectangle getBounds()
+    {
+        return new Rectangle(currentPosition.getX(),currentPosition.getY(),currentSize.getX(),currentSize.getY());
     }
     public void setLengthTitle(int length)
     {
@@ -21,6 +27,7 @@ public class GTextField extends GText {
     {
         this.event = event;
     }
+    public String getTitle(){return title;}
     private void runEnterCommand()
     {
         if(event==null){return;}
@@ -28,7 +35,8 @@ public class GTextField extends GText {
     }
     public void updateTitle(char command)
     {
-        if((command>='A'&&command<='Z')||(command>='a'&&command<='z'))
+        if(!isFocusable){return;}
+        if((command>='A'&&command<='Z')||(command>='a'&&command<='z')||(command>='0'&&command<='9'))
         {
             if(title.length()>=lengthTitle){return;}
             title += Character.toString(command);
@@ -51,6 +59,33 @@ public class GTextField extends GText {
                         currentSize.getX(), currentSize.getY());
             g2.setColor(Color.WHITE);
         }
+    }
+    public void setCanFocusable(boolean state)
+    {
+        isFocusable = state;
+    }
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if(!rect.contains(e.getX(),e.getY())){ isFocusable = false;return;}
+        if(e.getButton()==MouseEvent.BUTTON1)
+        {
+            isFocusable = true;
+        }
+        
+    }
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+    @Override
+    public void mouseExited(MouseEvent e) {
     }
 
    

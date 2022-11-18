@@ -221,7 +221,15 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
        
         if(isGameOver)
         {
-            replayButton.update(timeDeltaTime, mX, mY);
+            if(isInputMenu)
+            {
+                saveHighScoreButton.update(timeDeltaTime,mX,mY);
+            }
+            else
+            {
+                replayButton.update(timeDeltaTime, mX, mY);
+            }
+            
         }
         else if(isWin)
         {
@@ -240,15 +248,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
             playGameButton.update(timeDeltaTime,mX,mY);
             highScoreButton.update(timeDeltaTime,mX,mY);
             exitGameButton.update(timeDeltaTime,mX,mY);
-            
         }
         else if(isHighScore)
         {
             exitMainMenuHighScoreButton.update(timeDeltaTime,mX,mY);
-        }
-        else if(isInputMenu)
-        {
-            saveHighScoreButton.update(timeDeltaTime,mX,mY);
         }
         else
         {
@@ -274,7 +277,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
         {
             g2.drawImage(backgroundImage,0,0,screenWidth,screenHeight,null);
         }
-        if(!isGameOver&&!isPausing&&!isShowUpMenu&&!isHighScore)
+        if(!isGameOver&&!isPausing&&!isShowUpMenu&&!isHighScore&&!isInputMenu)
         {
             drawAlphaButton(g2);
         }
@@ -288,6 +291,10 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
         else if(isHighScore)
         {
             drawHighScore(g2);
+        }
+        else if(isInputMenu)
+        {
+            drawInputMenuHighScore(g2);
         }
         else
         {
@@ -314,7 +321,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
                 drawPauseMenu(g2);
             }
         }
-        drawInputMenuHighScore(g2);
+        
         g2.dispose();//save memory
     }
     
@@ -483,7 +490,7 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
         inputHighScoreMenu.createText(100, 200, 200, 75, 
                                         null, "SAVE", 25);
         inputHighScoreMenu.createText(150, 100, 100, 50, null, "Please enter your name!", 20);
-        highScoreDisplayText = inputHighScoreMenu.createText(140, 50, 100, 50, 
+        highScoreDisplayText = inputHighScoreMenu.createText(147, 50, 100, 50, 
                                                             null, "SCORE", 25);
 
         saveHighScoreButton = inputHighScoreMenu.createButton(100, 200, 200, 75, 
@@ -491,9 +498,12 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
                                                             imageManager.getBackgroundClickedButton(), null);
         
         inputText = inputHighScoreMenu.createTextInput(100, 150, 200, 30,   
-                                        null, "Hello", 25);
+                                        null, "name", 25);
+        saveHighScoreButton.setIsDisplaying(false);
         addMouseListener(saveHighScoreButton);
+        addMouseListener(inputText);
         bindingEventForSaveHighScoreButton();
+        bindingEventForTextInputField();
     }
     private void createHighScore()
     {
@@ -888,7 +898,9 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
     {
         if(highScore.isHighScore(player.getScore()))
         {
-
+            isInputMenu = true;
+            saveHighScoreButton.setIsDisplaying(true);
+            highScoreDisplayText.setTitle(Integer.toString(player.getScore()));
         }
         isGameOver = true;
         popUpOverWindow.setCanDisplay(true);
@@ -898,8 +910,6 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
         currentIndexHangMan = (currentIndexHangMan+1)%imageManager.getLengthHangmanImages();
         quizzManager.resetUsedTitle();
         handleSoundEffect(3, SOUND_STATE.PLAY);
-        
-        
     }
     private void changeStateDisplayAnswer(boolean state)
     {
@@ -1103,10 +1113,30 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
             @Override
             public void trigger(Object obj) {
                 super.trigger(obj);
-
+                saveHighScore();
             }
         }
         );
+    }
+    private void bindingEventForTextInputField()
+    {
+        inputText.subscribeEvent(new EventBinding()
+        {
+            @Override
+            public void trigger(Object obj) {
+                super.trigger(obj);
+                saveHighScore();
+            }
+        }
+        );
+    }
+    private void saveHighScore()
+    {
+        if(inputText.getTitle().length()==0){return;}
+        isInputMenu = false;
+        saveHighScoreButton.setIsDisplaying(false);
+        highScore.addHighScore(inputText.getTitle(), player.getScore());
+        highScore.writeFile();
     }
     private void playGame()
     {
@@ -1190,13 +1220,9 @@ public class GamePanel extends JPanel implements Runnable,IEvent,KeyListener {
     }
     @Override
     public void keyPressed(KeyEvent e) {
-        // TODO Auto-generated method stub
-        
     }
     @Override
     public void keyReleased(KeyEvent e) {
-        // TODO Auto-generated method stub
-        
     }
 }
 class EventBinding implements IEvent

@@ -38,7 +38,7 @@ public class HighScore {
             FileWriter myWriter = new FileWriter("src/main/Mechanisms/high_score.txt");
             for(int i =0;i<highScores.size();i++)
             {
-                myWriter.write(highScores.get(i));
+                myWriter.write(highScores.get(i)+"\n");
             }
             myWriter.close();
         } catch (IOException e) {
@@ -48,7 +48,9 @@ public class HighScore {
     }
     public boolean isHighScore(int score)
     {
-        for(int i =0;i<MAX_HIGH_SCORE;i++)
+        if(score==0){return false;}
+        if(highScores.size()==0||highScores.size()<MAX_HIGH_SCORE){return true;}
+        for(int i =0;i<highScores.size();i++)
         {
             int currentScore =Integer.valueOf(highScores.get(i).split(" ")[1]);
             if(score>=currentScore)
@@ -61,7 +63,7 @@ public class HighScore {
     public void addHighScore(String name, int score)
     {
         int index = -1;
-        for(int i =0;i<MAX_HIGH_SCORE;i++)
+        for(int i =0;i<highScores.size();i++)
         {
             int currentScore =Integer.valueOf(highScores.get(i).split(" ")[1]);
             if(score>=currentScore)
@@ -70,7 +72,17 @@ public class HighScore {
                 break;
             }
         }
-        if(index==-1){return;}
+        
+        if(index==-1){
+            if(highScores.size()<MAX_HIGH_SCORE)
+            {
+                index = highScores.size();
+            }
+            else
+            {
+                return;
+            } 
+        }
         highScores.add(index, name+" "+Integer.toString(score));
         if(highScores.size()==MAX_HIGH_SCORE+1)
         {

@@ -1,1 +1,3 @@
 dung 200
+dungg 100
+nhan 80

@@ -46,5 +46,6 @@ public class GText extends Entity implements MyRunable{
     {
         this.title = title;
     }
+    public String getTitle(){return title;}
     
 }
