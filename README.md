@@ -17,14 +17,14 @@ Meanwhile, the compiled output files will be generated in the `bin` folder by de
 > If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
 
 ## How to Play Game
--It's very easy. Just click the letter you think it's match the word asked in game.
--When you guess right letter you will go to the next word.
--But when you gess wrong letter, the hang man will be drawn every scene and when it is finished, your game is over
--There are hint mechanism for you to help you guess the letter but it costs 30 coins
--You can earn coin per level you pass (max coin per level you can get is 10)
--You can also get score per level you pass (max score per level you can get is 100)
--The high scores in game will be recorded 
--Finally, be careful every letter you choose
+- It's very easy. Just click the letter you think it's match the word asked in game.
+- When you guess right letter you will go to the next word.
+- But when you gess wrong letter, the hang man will be drawn every scene and when it is finished, your game is over
+- There are hint mechanism for you to help you guess the letter but it costs 30 coins
+- You can earn coin per level you pass (max coin per level you can get is 10)
+- You can also get score per level you pass (max score per level you can get is 100)
+- The high scores in game will be recorded 
+- Finally, be careful every letter you choose
 
 ## Dependency Management
 
