@@ -1,31 +1,11 @@
-## Getting Started
-
-Hang man game is educational game which you can play to learn english.
-This game will help you increase your memory in english vocabulary.
-
-## Folder Structure
-
-The workspace contains two folders by default, where:
-
-- `src`: the folder to maintain sources
-  + Assets : the folder to maintain images, sounds relating to graphics and vfx
-  + The others folders are source codes
-- `lib`: the folder to maintain dependencies
-
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-## How to Play Game
-- It's very easy. Just click the letter you think it's match the word asked in game.
-- When you guess right letter you will go to the next word.
-- But when you gess wrong letter, the hang man will be drawn every scene and when it is finished, your game is over
-- There are hint mechanism for you to help you guess the letter but it costs 30 coins
-- You can earn coin per level you pass (max coin per level you can get is 10)
-- You can also get score per level you pass (max score per level you can get is 100)
-- The high scores in game will be recorded 
-- Finally, be careful every letter you choose
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+# Game Hangman
+# Hướng dẫn cài đặt:
++ Chọn mục Code trong respo và tải file zip về máy
++ Giải nén và mở source code bằng IDE có hỗ trợ ngôn ngữ java
+# Cách sử dụng source code:
++ chạy game bằng file App.java
++ toàn bộ các chức năng đều được thực thi trong file GamePanel.java
++ folder Assets dùng để lưu trữ tài nguyên của game gồm các file png
++ file quizz.txt dùng để lưu trữ từ cho câu hỏi
++ file high_score.txt dùng để lưu top 10 người chơi đạt điểm cao nhất
++ các file còn lại có chức năng được mô tả như tên file
