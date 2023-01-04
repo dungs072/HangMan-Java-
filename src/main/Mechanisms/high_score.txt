@@ -1,6 +1,10 @@
+toan 300
+hoang 290
 phuonglinh 260
+name 200
 dung 200
-nguyenhuud 100
-dungg 100
-hoducnhan 80
-nhan 80
+name 180
+hoducnhan 100
+name 100
+vanem 100
+tuan 100
